@@ -64,7 +64,7 @@ class SplashScreenState extends State<SplashScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text("E-commerce App",
+                      Text("Easy Shopping",
                           style: TextStyle(color: subheader, fontSize: 17)),
                     ],
                   ),
