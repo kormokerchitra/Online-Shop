@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/CheckoutPage/checkout.dart';
 import 'package:online_shopping/MainScreens/CreateAccountPage/account.dart';
 import 'package:online_shopping/MainScreens/Homepage/homepage.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../main.dart';
 
 class LoginForm extends StatefulWidget {
@@ -11,6 +12,10 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -51,7 +56,7 @@ class _LoginFormState extends State<LoginForm> {
                                     //color: Colors.grey[200],
                                     //padding: EdgeInsets.all(20),
                                     child: Text(
-                                  "Username",
+                                  "Email",
                                   style: TextStyle(
                                       color: Colors.black54,
                                       fontWeight: FontWeight.bold),
@@ -77,13 +82,14 @@ class _LoginFormState extends State<LoginForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _emailController,
                                 autofocus: false,
                                 decoration: InputDecoration(
                                   icon: const Icon(
                                     Icons.account_box,
                                     color: Colors.black38,
                                   ),
-                                  hintText: 'Type your username...',
+                                  hintText: 'Type your email...',
                                   //labelText: 'Enter E-mail',
                                   contentPadding: EdgeInsets.fromLTRB(
                                       0.0, 10.0, 20.0, 10.0),
@@ -142,6 +148,7 @@ class _LoginFormState extends State<LoginForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _passwordController,
                                 autofocus: false,
                                 obscureText: true,
                                 decoration: InputDecoration(
@@ -208,11 +215,16 @@ class _LoginFormState extends State<LoginForm> {
                 )),
             GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
-                isLoggedin = true;
+                if (_emailController.text == "") {
+                  loginErrMsg("Email fiels is blank");
+                } else if (_passwordController.text == "") {
+                  loginErrMsg("Password fiels is blank");
+                } else {
+                  setState(() {
+                    isLoading = true;
+                  });
+                  loginData();
+                }
               },
               child: Container(
                   width: MediaQuery.of(context).size.width,
@@ -233,5 +245,63 @@ class _LoginFormState extends State<LoginForm> {
         ),
       ),
     );
+  }
+
+  Future<void> loginData() async {
+    final response = await http.post(ip + 'easy_shopping/login.php', body: {
+      "email": _emailController.text,
+      "password": _passwordController.text
+    });
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
+      if (response.body != "failure") {
+        storeToLocal(response.body);
+        _emailController.clear();
+        _passwordController.clear();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+        isLoggedin = true;
+        userID = _emailController.text;
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        loginErrMsg("Email/Password is incorrect");
+      }
+    } else {
+      throw Exception('Unable to add caegory from the REST API');
+    }
+  }
+
+  loginErrMsg(String msg) {
+    showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return new Container(
+            height: 100.0,
+            color: Colors.transparent, //could change this to Color(0xFF737373),
+            //so you don't have to change MaterialApp canvasColor
+            child: new Container(
+                decoration: new BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: new BorderRadius.only(
+                        topLeft: const Radius.circular(10.0),
+                        topRight: const Radius.circular(10.0))),
+                child: new Center(
+                  child: new Text(msg),
+                )),
+          );
+        });
+  }
+
+  storeToLocal(String user_id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("userId", user_id);
   }
 }

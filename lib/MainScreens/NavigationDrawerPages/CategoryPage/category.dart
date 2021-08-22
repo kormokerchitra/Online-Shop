@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui' as prefix0;
 
 import 'package:online_shopping/Cards/AllCategoryCard/allCategoryCard.dart';
@@ -5,6 +6,7 @@ import 'package:online_shopping/MainScreens/AllProductPage/allProductPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:http/http.dart' as http;
 
 import '../../../main.dart';
 
@@ -22,10 +24,27 @@ class CategoryPageState extends State<CategoryPage>
   bool _isLoggedIn = false;
   String _debugLabelString = "";
   bool _requireConsent = false;
+  var categoryList = [];
 
   @override
   void initState() {
     super.initState();
+    fetchCategory();
+  }
+
+  Future<void> fetchCategory() async {
+    final response = await http.get(ip + 'easy_shopping/category_list.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      var categoryBody = json.decode(response.body);
+      print(categoryBody["cat_list"]);
+      setState(() {
+        categoryList = categoryBody["cat_list"];
+      });
+      print(categoryList.length);
+    } else {
+      throw Exception('Unable to fetch category from the REST API');
+    }
   }
 
   @override
@@ -61,8 +80,8 @@ class CategoryPageState extends State<CategoryPage>
           child: new ListView.builder(
             itemBuilder: (BuildContext context, int index) =>
                 ////// <<<<< All Category Card >>>>> //////
-                AllCategoryCard(),
-            itemCount: 20,
+                AllCategoryCard(categoryList[index]),
+            itemCount: categoryList.length,
           ),
         ),
       ),

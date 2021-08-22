@@ -1,31 +1,37 @@
-import 'dart:ui' as prefix0;
-
-import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-
 import '../../main.dart';
 
-class OrderListPage extends StatefulWidget {
+class OrderDetailsPage extends StatefulWidget {
+  final orderDetails;
+  OrderDetailsPage(this.orderDetails);
+
   @override
   State<StatefulWidget> createState() {
-    return OrderListPageState();
+    return OrderDetailsPageState();
   }
 }
 
-class OrderListPageState extends State<OrderListPage>
+class OrderDetailsPageState extends State<OrderDetailsPage>
     with SingleTickerProviderStateMixin {
   TextEditingController _reviewController = TextEditingController();
   Animation<double> animation;
   AnimationController controller;
   bool _isLoggedIn = false;
-  String _debugLabelString = "", review = '', runningdate = '';
+  String _debugLabelString = "", review = '', runningdate = '', statustxt = "";
   bool _requireConsent = false;
   var dd, finalDate;
   DateTime _date = DateTime.now();
+  List statusList = [
+    "Processing",
+    "Picked",
+    "Shipped",
+    "Delivered",
+    "Cancelled"
+  ];
 
   @override
   void initState() {
@@ -33,6 +39,7 @@ class OrderListPageState extends State<OrderListPage>
     // Timer.periodic(Duration(seconds: 1), (Timer t) => _getDate());
     var now = new DateTime.now();
     runningdate = new DateFormat("dd-MM-yyyy").format(now);
+    statustxt = widget.orderDetails["status"];
     super.initState();
   }
 
@@ -86,21 +93,35 @@ class OrderListPageState extends State<OrderListPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        //backgroundColor: Theme.of(context).secondaryHeaderColor,
         backgroundColor: Colors.white,
-        // title:
-        //     Container(padding: EdgeInsets.all(10), color: mainheader, child: Icon(Icons.menu)),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.grey,
+            )),
         title: Center(
           child: Container(
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                Text("Order Details",
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey)),
                 Container(
-                  child: Row(
-                    children: <Widget>[
-                      Text("Order details",
-                          style: TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.bold)),
-                    ],
+                  padding: EdgeInsets.all(5),
+                  margin: EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(width: 0.5, color: mainheader),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Text(
+                    statustxt,
+                    style: TextStyle(fontSize: 12, color: mainheader),
                   ),
                 ),
               ],
@@ -109,6 +130,7 @@ class OrderListPageState extends State<OrderListPage>
         ),
       ),
       body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         child: Container(
           color: sub_white,
           //height: MediaQuery.of(context).size.height,
@@ -177,7 +199,7 @@ class OrderListPageState extends State<OrderListPage>
                                         //color: Colors.grey[200],
                                         //padding: EdgeInsets.all(20),
                                         child: Text(
-                                      "Appifylab",
+                                      widget.orderDetails["full_name"],
                                       style: TextStyle(color: Colors.black54),
                                     )),
                                   ],
@@ -206,7 +228,7 @@ class OrderListPageState extends State<OrderListPage>
                                           Container(
                                               margin: EdgeInsets.only(left: 5),
                                               child: Text(
-                                                "Modina Market",
+                                                widget.orderDetails["address"],
                                                 style: TextStyle(
                                                     color: Colors.grey),
                                               )),
@@ -239,7 +261,8 @@ class OrderListPageState extends State<OrderListPage>
                                           Container(
                                               margin: EdgeInsets.only(left: 5),
                                               child: Text(
-                                                "017XXXXXXXX",
+                                                widget.orderDetails[
+                                                    "phon_number"],
                                                 style: TextStyle(
                                                     color: Colors.grey),
                                               )),
@@ -297,7 +320,8 @@ class OrderListPageState extends State<OrderListPage>
                                           Container(
                                               margin: EdgeInsets.only(left: 5),
                                               child: Text(
-                                                runningdate,
+                                                widget.orderDetails[
+                                                    "delivery_date"],
                                                 style: TextStyle(
                                                     color: Colors.grey),
                                               )),
@@ -312,226 +336,226 @@ class OrderListPageState extends State<OrderListPage>
                         ),
                       ],
                     )),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin:
-                      EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
-                  padding: EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      color: Colors.white,
-                      border: Border.all(width: 0.2, color: Colors.grey)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        "Product List",
-                        style: TextStyle(fontSize: 17, color: Colors.black),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
-                        width: MediaQuery.of(context).size.width,
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              margin: EdgeInsets.only(top: 15, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product 1",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      Text(
-                                        "1",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                      Container(
-                                        margin:
-                                            EdgeInsets.only(left: 3, right: 3),
-                                        child: Icon(Icons.close,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
-                                      Text(
-                                        "50.10",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 15, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product 2",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      Text(
-                                        "2",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                      Container(
-                                        margin:
-                                            EdgeInsets.only(left: 3, right: 3),
-                                        child: Icon(Icons.close,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
-                                      Text(
-                                        "12.50",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 15, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product 3",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      Text(
-                                        "1",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                      Container(
-                                        margin:
-                                            EdgeInsets.only(left: 3, right: 3),
-                                        child: Icon(Icons.close,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
-                                      Text(
-                                        "75.15",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 15, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product 4",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      Text(
-                                        "4",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                      Container(
-                                        margin:
-                                            EdgeInsets.only(left: 3, right: 3),
-                                        child: Icon(Icons.close,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
-                                      Text(
-                                        "25.00",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 5, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Total Price",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black),
-                                      Text(
-                                        "250.25",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                // Container(
+                //   width: MediaQuery.of(context).size.width,
+                //   margin:
+                //       EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
+                //   padding: EdgeInsets.all(15),
+                //   decoration: BoxDecoration(
+                //       borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                //       color: Colors.white,
+                //       border: Border.all(width: 0.2, color: Colors.grey)),
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: <Widget>[
+                //       Text(
+                //         "Product List",
+                //         style: TextStyle(fontSize: 17, color: Colors.black),
+                //         textAlign: TextAlign.center,
+                //       ),
+                //       SizedBox(
+                //         height: 10,
+                //       ),
+                //       Container(
+                //         padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
+                //         width: MediaQuery.of(context).size.width,
+                //         child: Column(
+                //           children: <Widget>[
+                //             Container(
+                //               margin: EdgeInsets.only(top: 15, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Product 1",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       Text(
+                //                         "1",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                       Container(
+                //                         margin:
+                //                             EdgeInsets.only(left: 3, right: 3),
+                //                         child: Icon(Icons.close,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                       Icon(Icons.attach_money,
+                //                           size: 15, color: Colors.black54),
+                //                       Text(
+                //                         "50.10",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //             Container(
+                //               margin: EdgeInsets.only(top: 15, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Product 2",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       Text(
+                //                         "2",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                       Container(
+                //                         margin:
+                //                             EdgeInsets.only(left: 3, right: 3),
+                //                         child: Icon(Icons.close,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                       Icon(Icons.attach_money,
+                //                           size: 15, color: Colors.black54),
+                //                       Text(
+                //                         "12.50",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //             Container(
+                //               margin: EdgeInsets.only(top: 15, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Product 3",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       Text(
+                //                         "1",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                       Container(
+                //                         margin:
+                //                             EdgeInsets.only(left: 3, right: 3),
+                //                         child: Icon(Icons.close,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                       Icon(Icons.attach_money,
+                //                           size: 15, color: Colors.black54),
+                //                       Text(
+                //                         "75.15",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //             Container(
+                //               margin: EdgeInsets.only(top: 15, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Product 4",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       Text(
+                //                         "4",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                       Container(
+                //                         margin:
+                //                             EdgeInsets.only(left: 3, right: 3),
+                //                         child: Icon(Icons.close,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                       Icon(Icons.attach_money,
+                //                           size: 15, color: Colors.black54),
+                //                       Text(
+                //                         "25.00",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //             Divider(
+                //               color: Colors.grey,
+                //             ),
+                //             Container(
+                //               margin: EdgeInsets.only(top: 5, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Total Price",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       Icon(Icons.attach_money,
+                //                           size: 15, color: Colors.black),
+                //                       Text(
+                //                         "250.25",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(
+                //                             color: Colors.black,
+                //                             fontWeight: FontWeight.bold),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       )
+                //     ],
+                //   ),
+                // ),
                 Container(
                   width: MediaQuery.of(context).size.width,
                   margin:
@@ -567,12 +591,34 @@ class OrderListPageState extends State<OrderListPage>
                                       //color: Colors.grey[200],
                                       //padding: EdgeInsets.all(20),
                                       child: Text(
+                                    "Invoice ID",
+                                    style: TextStyle(color: Colors.grey),
+                                  )),
+                                  Container(
+                                      child: Text(
+                                    "#${widget.orderDetails["inv_id"]}",
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(color: Colors.black54),
+                                  ))
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: 15, bottom: 5),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Container(
+                                      //color: Colors.grey[200],
+                                      //padding: EdgeInsets.all(20),
+                                      child: Text(
                                     "Total Products",
                                     style: TextStyle(color: Colors.grey),
                                   )),
                                   Container(
                                       child: Text(
-                                    "4",
+                                    widget.orderDetails["total_product"],
                                     textAlign: TextAlign.start,
                                     style: TextStyle(color: Colors.black54),
                                   ))
@@ -598,7 +644,7 @@ class OrderListPageState extends State<OrderListPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: Colors.black54),
                                       Text(
-                                        "250.25",
+                                        widget.orderDetails["total_price"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -628,7 +674,8 @@ class OrderListPageState extends State<OrderListPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: mainheader),
                                       Text(
-                                        "50.05",
+                                        widget.orderDetails["prod_discount"],
+                                        //"${prodList[index]["prod_discount"]}",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -656,7 +703,7 @@ class OrderListPageState extends State<OrderListPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: Colors.black54),
                                       Text(
-                                        "200.20",
+                                        widget.orderDetails["sub_total"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -686,7 +733,7 @@ class OrderListPageState extends State<OrderListPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: mainheader),
                                       Text(
-                                        "0.00",
+                                        widget.orderDetails["coupon_discount"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -714,7 +761,7 @@ class OrderListPageState extends State<OrderListPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: Colors.black54),
                                       Text(
-                                        "100.00",
+                                        widget.orderDetails["shipping_cost"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -745,7 +792,7 @@ class OrderListPageState extends State<OrderListPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: Colors.black),
                                       Text(
-                                        "300.20",
+                                        widget.orderDetails["total_payable"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                             color: Colors.black,
@@ -803,48 +850,13 @@ class OrderListPageState extends State<OrderListPage>
                                             //color: Colors.grey[200],
                                             //padding: EdgeInsets.all(20),
                                             child: Text(
-                                          "Cash on delivery",
+                                          widget.orderDetails["payment_method"],
                                           style: TextStyle(color: Colors.grey),
                                         )),
                                       ],
                                     ),
                                   ),
                                 ],
-                              ),
-                            ),
-                            Container(
-                              padding:
-                                  EdgeInsets.only(top: 0, right: 5, bottom: 5),
-                              width: MediaQuery.of(context).size.width,
-                              child: Center(
-                                child: Column(
-                                  children: <Widget>[
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Container(
-                                          margin: EdgeInsets.only(
-                                              top: 5, bottom: 5),
-                                          child: Row(
-                                            children: <Widget>[
-                                              Icon(Icons.location_on,
-                                                  color: Colors.grey, size: 16),
-                                              Container(
-                                                  margin:
-                                                      EdgeInsets.only(left: 5),
-                                                  child: Text(
-                                                    "Modina Market",
-                                                    style: TextStyle(
-                                                        color: Colors.grey),
-                                                  )),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
                               ),
                             ),
                           ],
@@ -858,161 +870,6 @@ class OrderListPageState extends State<OrderListPage>
           ),
         ),
       ),
-    );
-  }
-
-  void viewProducts() {
-    showDialog<String>(
-      context: context,
-      barrierDismissible:
-          true, // dialog is dismissible with a tap on the barrier
-      builder: (BuildContext context) {
-        return Theme(
-          data: Theme.of(context).copyWith(dialogBackgroundColor: sub_white),
-          child: AlertDialog(
-            // title: new Text(
-            //   proImage + '$photo',
-            //   style: TextStyle(color: Colors.white),
-            // ),
-            content: Container(
-              margin: EdgeInsets.only(left: 0, right: 0, top: 0),
-              color: sub_white,
-              width: MediaQuery.of(context).size.width,
-              child: new ListView.builder(
-                itemBuilder: (BuildContext context, int index) => new Container(
-                  margin: EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(1.0)),
-                      color: Colors.white,
-                      border: Border.all(width: 0.2, color: Colors.grey)),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => DetailsPage()),
-                      );
-                    },
-                    child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Expanded(
-                            // color: Colors.red,
-                            child: Row(
-                              children: <Widget>[
-                                Container(
-                                    margin: EdgeInsets.only(right: 10, left: 0),
-                                    height: 90,
-                                    child: Image.asset('assets/shoe.png')),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        "Product Name hghgjhgjgjh",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            fontSize: 17,
-                                            color: Colors.black54),
-                                        textAlign: TextAlign.start,
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(top: 5),
-                                        child: Row(
-                                          children: <Widget>[
-                                            Icon(
-                                              Icons.star,
-                                              color: golden,
-                                              size: 17,
-                                            ),
-                                            Container(
-                                              margin: EdgeInsets.only(left: 3),
-                                              child: Text(
-                                                "4.5",
-                                                style: TextStyle(
-                                                    color: Colors.grey),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(top: 5),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            Row(
-                                              children: <Widget>[
-                                                Icon(
-                                                  Icons.attach_money,
-                                                  color: Colors.grey,
-                                                  size: 17,
-                                                ),
-                                                SizedBox(
-                                                  width: 3,
-                                                ),
-                                                Text(
-                                                  "20.25",
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-
-                                            // Icon(
-                                            //   Icons.delete,
-                                            //   color: Colors.grey,
-                                            //   size: 23,
-                                            // ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Container(
-                          //     margin: EdgeInsets.only(right: 5),
-                          //     child: Column(
-                          //       children: <Widget>[
-                          //         Container(
-                          //           color: Colors.white,
-                          //           child: Icon(
-                          //             Icons.chevron_right,
-                          //             color: Colors.grey,
-                          //           ),
-                          //         ),
-                          //       ],
-                          //     )),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                itemCount: 20,
-              ),
-            ),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text(
-                  "OK",
-                  style: TextStyle(color: mainheader),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          ),
-        );
-      },
     );
   }
 }

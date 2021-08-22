@@ -17,6 +17,8 @@ import 'package:online_shopping/MainScreens/NavigationDrawerPages/TnCPage/tnc.da
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../main.dart';
 
@@ -45,6 +47,14 @@ class HomePageState extends State<HomePage>
     ProfilePage(),
     CartPage(),
   ];
+
+  void clearLog() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    isLoggedin = false;
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => HomePage()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -380,12 +390,7 @@ class HomePageState extends State<HomePage>
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        isLoggedin = false;
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    HomePage()));
+                                        clearLog();
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
@@ -422,7 +427,7 @@ class HomePageState extends State<HomePage>
                     margin: EdgeInsets.only(right: 5),
                     width: 30,
                     child: Image.asset('assets/logo.jpg')),
-                Text("E-commerce App",
+                Text("Easy Shopping",
                     style: TextStyle(
                         color: subheader,
                         fontSize: 17,

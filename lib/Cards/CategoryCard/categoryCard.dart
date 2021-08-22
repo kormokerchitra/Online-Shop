@@ -4,6 +4,8 @@ import 'package:online_shopping/MainScreens/NavigationDrawerPages/AllCartPage/al
 import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
 
 class CategoryCard extends StatefulWidget {
+  final cat_item;
+  CategoryCard(this.cat_item);
   @override
   _CategoryCardState createState() => _CategoryCardState();
 }
@@ -23,7 +25,11 @@ class _CategoryCardState extends State<CategoryCard> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AllProductPage()),
+            MaterialPageRoute(
+                builder: (context) => AllProductPage(
+                      cat_id: widget.cat_item["cat_id"],
+                      cat_name: widget.cat_item["cat_name"],
+                    )),
           );
         },
         child: Container(
@@ -42,7 +48,7 @@ class _CategoryCardState extends State<CategoryCard> {
                         Container(
                           margin: EdgeInsets.only(left: 3),
                           child: Text(
-                            "Category Name",
+                            widget.cat_item["cat_name"],
                             overflow: TextOverflow.ellipsis,
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black54),

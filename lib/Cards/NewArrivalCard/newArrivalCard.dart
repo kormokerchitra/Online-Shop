@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
+import 'package:http/http.dart' as http;
 
 import '../../main.dart';
 
 class NewArrivalCard extends StatefulWidget {
+  final prod_item;
+  NewArrivalCard(this.prod_item);
+
   @override
   _NewArrivalCardState createState() => _NewArrivalCardState();
 }
@@ -22,7 +26,9 @@ class _NewArrivalCardState extends State<NewArrivalCard> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DetailsPage()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    DetailsPage(product_info: widget.prod_item)),
           );
         },
         child: Container(
@@ -35,9 +41,9 @@ class _NewArrivalCardState extends State<NewArrivalCard> {
                     width: MediaQuery.of(context).size.width,
                     child: Stack(children: <Widget>[
                       Center(
-                        child: Image.asset(
-                          'assets/tshirt.png',
-                        ),
+                        child: widget.prod_item["product_img"] == ""
+                            ? Image.asset('assets/product_back.jpg')
+                            : Image.asset('assets/product_back.jpg'),
                       ),
                       Container(
                           padding: EdgeInsets.all(5),
@@ -56,9 +62,11 @@ class _NewArrivalCardState extends State<NewArrivalCard> {
                 height: 10,
               ),
               Text(
-                "Product Name",
+                widget.prod_item["product_name"],
+                //"${prodList[index]["product_name"]}",
                 style: TextStyle(fontSize: 14, color: Colors.black38),
                 textAlign: TextAlign.center,
+                maxLines: 2,
               ),
               SizedBox(
                 height: 10,
@@ -77,7 +85,8 @@ class _NewArrivalCardState extends State<NewArrivalCard> {
                             size: 18,
                           ),
                           Text(
-                            "20.25",
+                            widget.prod_item["product_price"],
+                            //"${prodList[index]["product_price"]}/-",
                             style:
                                 TextStyle(fontSize: 16, color: Colors.black87),
                           ),
@@ -97,26 +106,13 @@ class _NewArrivalCardState extends State<NewArrivalCard> {
                       color: golden,
                       size: 15,
                     ),
-                    Icon(
-                      Icons.star,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star_half,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star_border,
-                      color: golden,
-                      size: 15,
-                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3),
+                      child: Text(
+                        "${widget.prod_item["prod_rating"]}",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
                   ],
                 ),
               ),

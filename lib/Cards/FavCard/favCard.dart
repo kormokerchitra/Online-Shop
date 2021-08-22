@@ -4,6 +4,9 @@ import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
 import '../../main.dart';
 
 class FavCard extends StatefulWidget {
+  final fav_item;
+  FavCard(this.fav_item);
+
   @override
   _FavCardState createState() => _FavCardState();
 }
@@ -22,7 +25,9 @@ class _FavCardState extends State<FavCard> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DetailsPage()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    DetailsPage(product_info: widget.fav_item)),
           );
         },
         child: Container(
@@ -30,18 +35,22 @@ class _FavCardState extends State<FavCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Expanded(
+                // color: Colors.red,
                 child: Row(
                   children: <Widget>[
                     Container(
                         margin: EdgeInsets.only(right: 10, left: 0),
-                        height: 100,
-                        child: Image.asset('assets/pant.jpg')),
+                        height: 90,
+                        child: widget.fav_item["product_img"] == ""
+                            ? Image.asset('assets/product_back.jpg')
+                            : Image.asset('assets/product_back.jpg')),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            "Product Name 1234",
+                            widget.fav_item["product_name"],
+                            //"${prodList[index]["product_name"]}",
                             overflow: TextOverflow.ellipsis,
                             style:
                                 TextStyle(fontSize: 17, color: Colors.black54),
@@ -59,7 +68,7 @@ class _FavCardState extends State<FavCard> {
                                 Container(
                                   margin: EdgeInsets.only(left: 3),
                                   child: Text(
-                                    "4.5",
+                                    "${widget.fav_item["prod_rating"]}",
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                 )
@@ -67,7 +76,7 @@ class _FavCardState extends State<FavCard> {
                             ),
                           ),
                           Container(
-                            margin: EdgeInsets.only(top: 5),
+                            margin: EdgeInsets.only(top: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
@@ -75,21 +84,24 @@ class _FavCardState extends State<FavCard> {
                                   children: <Widget>[
                                     Icon(
                                       Icons.attach_money,
-                                      color: Colors.grey,
-                                      size: 17,
-                                    ),
-                                    SizedBox(
-                                      width: 3,
+                                      color: Colors.black87,
+                                      size: 18,
                                     ),
                                     Text(
-                                      "20.25",
+                                      "${widget.fav_item["product_price"]}/-",
                                       style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey,
+                                        fontSize: 16,
+                                        color: Colors.black87,
                                       ),
                                     ),
                                   ],
                                 ),
+
+                                // Icon(
+                                //   Icons.delete,
+                                //   color: Colors.grey,
+                                //   size: 23,
+                                // ),
                               ],
                             ),
                           )

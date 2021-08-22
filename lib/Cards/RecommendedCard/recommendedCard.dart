@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
+import 'package:http/http.dart' as http;
 
 import '../../main.dart';
 
 class RecommendedCard extends StatefulWidget {
+  final prod_item;
+  RecommendedCard(this.prod_item);
+
   @override
   _RecommendedCardState createState() => _RecommendedCardState();
 }
@@ -22,7 +26,9 @@ class _RecommendedCardState extends State<RecommendedCard> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DetailsPage()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    DetailsPage(product_info: widget.prod_item)),
           );
         },
         child: Container(
@@ -33,21 +39,21 @@ class _RecommendedCardState extends State<RecommendedCard> {
                   height: 80,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    child: Stack(children: <Widget>[
-                      Center(
-                        child: Image.asset(
-                          'assets/tshirt.png',
-                        ),
-                      ),
-                    ]),
+                    child: Center(
+                      child: widget.prod_item["product_img"] == ""
+                          ? Image.asset('assets/product_back.jpg')
+                          : Image.asset('assets/product_back.jpg'),
+                    ),
                   )),
               SizedBox(
                 height: 10,
               ),
               Text(
-                "Product Name",
+                widget.prod_item["product_name"],
+                //"${prodList[index]["product_name"]}",
                 style: TextStyle(fontSize: 14, color: Colors.black38),
                 textAlign: TextAlign.center,
+                maxLines: 2,
               ),
               SizedBox(
                 height: 10,
@@ -66,7 +72,8 @@ class _RecommendedCardState extends State<RecommendedCard> {
                             size: 18,
                           ),
                           Text(
-                            "20.25",
+                            widget.prod_item["product_price"],
+                            //"${prodList[index]["product_price"]}/-",
                             style:
                                 TextStyle(fontSize: 16, color: Colors.black87),
                           ),
@@ -86,26 +93,13 @@ class _RecommendedCardState extends State<RecommendedCard> {
                       color: golden,
                       size: 15,
                     ),
-                    Icon(
-                      Icons.star,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star_half,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star_border,
-                      color: golden,
-                      size: 15,
-                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3),
+                      child: Text(
+                        "${widget.prod_item["prod_rating"]}",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
                   ],
                 ),
               ),

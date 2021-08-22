@@ -1,12 +1,42 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/AllProductPage/allProductPage.dart';
+import 'package:http/http.dart' as http;
+import 'package:online_shopping/main.dart';
 
 class AllCategoryCard extends StatefulWidget {
+  final cat_item;
+  AllCategoryCard(this.cat_item);
+
   @override
   _AllCategoryCardState createState() => _AllCategoryCardState();
 }
 
 class _AllCategoryCardState extends State<AllCategoryCard> {
+  var categoryList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchCategory();
+  }
+
+  Future<void> fetchCategory() async {
+    final response = await http.get(ip + 'easy_shopping/category_list.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      var categoryBody = json.decode(response.body);
+      print(categoryBody["cat_list"]);
+      setState(() {
+        categoryList = categoryBody["cat_list"];
+      });
+      print(categoryList.length);
+    } else {
+      throw Exception('Unable to fetch category from the REST API');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -14,7 +44,11 @@ class _AllCategoryCardState extends State<AllCategoryCard> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AllProductPage()),
+            MaterialPageRoute(
+                builder: (context) => AllProductPage(
+                      cat_id: widget.cat_item["cat_id"],
+                      cat_name: widget.cat_item["cat_name"],
+                    )),
           );
         },
         child: Container(
@@ -32,16 +66,12 @@ class _AllCategoryCardState extends State<AllCategoryCard> {
                   // color: Colors.red,
                   child: Row(
                     children: <Widget>[
-                      Container(
-                          margin: EdgeInsets.only(right: 10, left: 0),
-                          height: 50,
-                          child: Image.asset('assets/tshirt.png')),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              "Category Name",
+                              widget.cat_item["cat_name"],
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 17,
@@ -64,7 +94,7 @@ class _AllCategoryCardState extends State<AllCategoryCard> {
                                         width: 3,
                                       ),
                                       Text(
-                                        "20+ Items",
+                                        "${widget.cat_item["product_count"]} Items",
                                         style: TextStyle(
                                             fontSize: 14, color: Colors.grey),
                                       ),

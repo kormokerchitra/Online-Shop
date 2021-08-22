@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:ui' as prefix0;
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:online_shopping/MainScreens/NavigationDrawerPages/OrderPage/orders.dart';
+import 'package:online_shopping/MainScreens/OrderListPage/orderlist.dart';
 
 import '../../main.dart';
 
@@ -27,33 +30,74 @@ class CheckoutPageState extends State<CheckoutPage>
       place = "",
       phone = "",
       payment = "";
-  var dd, finalDate;
-  int val = 0;
+  var dday, finalDate;
+  int val = 0, qtyProduct = 0;
+  double totalPrice = 0.0,
+      discTotal = 0.0,
+      subTotal = 0.0,
+      couponPrice = 0.0,
+      payablePrice = 0.0;
   DateTime _date = DateTime.now();
   bool placeEdit = false, phoneEdit = false, paymentChoose = false;
+  var cartList = [];
 
   @override
   void initState() {
     var now = new DateTime.now();
-    runningdate = new DateFormat("dd-MM-yyyy").format(now);
-    setState(() {
-      placeController.text = "Modina Market";
-      phoneController.text = "017XXXXXXXX";
-    });
+    runningdate = new DateFormat("yyyy-MM-dd").format(now);
+    fetchCart();
     super.initState();
   }
 
-  // void _getDate() {
-  //   final DateTime now = DateTime.now();
-  //   final String formattedDateTime1 = _formatDateTime1(now);
-  //   setState(() {
-  //     runningdate = formattedDateTime1;
-  //   });
-  // }
+  Future<void> fetchCart() async {
+    totalPrice = 0.0;
+    final response = await http
+        .post(ip + 'easy_shopping/cart_list.php', body: {"user_id": userID});
+    if (response.statusCode == 200) {
+      print(response.body);
+      var cartBody = json.decode(response.body);
+      print(cartBody["cart_list"]);
+      setState(() {
+        cartList = cartBody["cart_list"];
 
-  // String _formatDateTime1(DateTime dateTime) {
-  //   return DateFormat('dd-MM-yyyy').format(dateTime);
-  // }
+        for (int i = 0; i < cartList.length; i++) {
+          int qty = int.parse(cartList[i]["product_qnt"]);
+          double price = double.parse(cartList[i]["product_price"]);
+          double total = qty * price;
+          totalPrice += total;
+          qtyProduct += qty;
+
+          double disc = double.parse(cartList[i]["prod_discount"]);
+          double discPrice = price * (disc / 100);
+          print(discPrice);
+          discTotal += discPrice;
+        }
+        print("totalPrice");
+        print(totalPrice);
+
+        subTotal = totalPrice - discTotal;
+        payablePrice = subTotal + 100;
+      });
+      print(cartList.length);
+    } else {
+      throw Exception('Unable to fetch cart from the REST API');
+    }
+  }
+
+  Future<void> fetchCouponAmount() async {
+    totalPrice = 0.0;
+    final response = await http.post(ip + 'easy_shopping/voucher_apply.php',
+        body: {"voucher_name": _reviewController.text});
+    if (response.statusCode == 200) {
+      print(response.body);
+      setState(() {
+        couponPrice = double.parse(response.body);
+        payablePrice = (subTotal - couponPrice) + 100;
+      });
+    } else {
+      throw Exception('Unable to fetch cart from the REST API');
+    }
+  }
 
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
@@ -63,14 +107,8 @@ class CheckoutPageState extends State<CheckoutPage>
       lastDate: DateTime(2100),
     );
     if (picked != null && picked != _date) {
-      dd = DateTime.parse(_date.toString());
-      finalDate = "${dd.day}-${dd.month}-${dd.year}";
-      runningdate = finalDate.toString();
       setState(() {
-        _date = picked;
-        var dd1 = DateTime.parse(_date.toString());
-        var finalDate1 = "${dd1.day}-${dd1.month}-${dd1.year}";
-        runningdate = finalDate1.toString();
+        runningdate = new DateFormat("yyyy-MM-dd").format(picked);
       });
     }
   }
@@ -178,7 +216,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                         //color: Colors.grey[200],
                                         //padding: EdgeInsets.all(20),
                                         child: Text(
-                                      "Appifylab",
+                                      "Chitra",
                                       style: TextStyle(color: Colors.black54),
                                     )),
                                   ],
@@ -255,7 +293,9 @@ class CheckoutPageState extends State<CheckoutPage>
                                                       margin: EdgeInsets.only(
                                                           left: 5),
                                                       child: Text(
-                                                        "Modina Market",
+                                                        place == ""
+                                                            ? "Add Address"
+                                                            : place,
                                                         style: TextStyle(
                                                             color: Colors.grey),
                                                       )),
@@ -355,7 +395,9 @@ class CheckoutPageState extends State<CheckoutPage>
                                                       margin: EdgeInsets.only(
                                                           left: 5),
                                                       child: Text(
-                                                        "017XXXXXXXX",
+                                                        phone == ""
+                                                            ? "Contact Name"
+                                                            : phone,
                                                         style: TextStyle(
                                                             color: Colors.grey),
                                                       )),
@@ -458,254 +500,254 @@ class CheckoutPageState extends State<CheckoutPage>
                         ),
                       ],
                     )),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin:
-                      EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
-                  padding: EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      color: Colors.white,
-                      border: Border.all(width: 0.2, color: Colors.grey)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        "Product List",
-                        style: TextStyle(fontSize: 17, color: Colors.black),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
-                        width: MediaQuery.of(context).size.width,
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              margin: EdgeInsets.only(top: 15, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product 1",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            val--;
-                                            if (val <= 0) {
-                                              val = 0;
-                                            }
-                                          });
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.grey[500]),
-                                              borderRadius:
-                                                  BorderRadius.circular(5)),
-                                          padding: EdgeInsets.all(2),
-                                          margin: EdgeInsets.only(
-                                              left: 3, right: 10),
-                                          child: Icon(Icons.remove,
-                                              size: 15, color: Colors.black54),
-                                        ),
-                                      ),
-                                      Text(
-                                        "$val",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            val++;
-                                          });
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.grey[500]),
-                                              borderRadius:
-                                                  BorderRadius.circular(5)),
-                                          padding: EdgeInsets.all(2),
-                                          margin: EdgeInsets.only(
-                                              left: 10, right: 3),
-                                          child: Icon(Icons.add,
-                                              size: 15, color: Colors.black54),
-                                        ),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 15, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product 2",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey[500]),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        padding: EdgeInsets.all(2),
-                                        margin:
-                                            EdgeInsets.only(left: 3, right: 10),
-                                        child: Icon(Icons.remove,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                      Text(
-                                        "2",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey[500]),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        padding: EdgeInsets.all(2),
-                                        margin:
-                                            EdgeInsets.only(left: 10, right: 3),
-                                        child: Icon(Icons.add,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 15, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product 3",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey[500]),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        padding: EdgeInsets.all(2),
-                                        margin:
-                                            EdgeInsets.only(left: 3, right: 10),
-                                        child: Icon(Icons.remove,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                      Text(
-                                        "3",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey[500]),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        padding: EdgeInsets.all(2),
-                                        margin:
-                                            EdgeInsets.only(left: 10, right: 3),
-                                        child: Icon(Icons.add,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 15, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product 4",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Row(
-                                    children: <Widget>[
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey[500]),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        padding: EdgeInsets.all(2),
-                                        margin:
-                                            EdgeInsets.only(left: 3, right: 10),
-                                        child: Icon(Icons.remove,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                      Text(
-                                        "4",
-                                        textAlign: TextAlign.start,
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey[500]),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        padding: EdgeInsets.all(2),
-                                        margin:
-                                            EdgeInsets.only(left: 10, right: 3),
-                                        child: Icon(Icons.add,
-                                            size: 15, color: Colors.black54),
-                                      ),
-                                    ],
-                                  ))
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                // Container(
+                //   width: MediaQuery.of(context).size.width,
+                //   margin:
+                //       EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
+                //   padding: EdgeInsets.all(15),
+                //   decoration: BoxDecoration(
+                //       borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                //       color: Colors.white,
+                //       border: Border.all(width: 0.2, color: Colors.grey)),
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: <Widget>[
+                //       Text(
+                //         "Product List",
+                //         style: TextStyle(fontSize: 17, color: Colors.black),
+                //         textAlign: TextAlign.center,
+                //       ),
+                //       SizedBox(
+                //         height: 10,
+                //       ),
+                //       Container(
+                //         padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
+                //         width: MediaQuery.of(context).size.width,
+                //         child: Column(
+                //           children: <Widget>[
+                //             Container(
+                //               margin: EdgeInsets.only(top: 15, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Product 1",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       GestureDetector(
+                //                         onTap: () {
+                //                           setState(() {
+                //                             val--;
+                //                             if (val <= 0) {
+                //                               val = 0;
+                //                             }
+                //                           });
+                //                         },
+                //                         child: Container(
+                //                           decoration: BoxDecoration(
+                //                               border: Border.all(
+                //                                   color: Colors.grey[500]),
+                //                               borderRadius:
+                //                                   BorderRadius.circular(5)),
+                //                           padding: EdgeInsets.all(2),
+                //                           margin: EdgeInsets.only(
+                //                               left: 3, right: 10),
+                //                           child: Icon(Icons.remove,
+                //                               size: 15, color: Colors.black54),
+                //                         ),
+                //                       ),
+                //                       Text(
+                //                         "$val",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                       GestureDetector(
+                //                         onTap: () {
+                //                           setState(() {
+                //                             val++;
+                //                           });
+                //                         },
+                //                         child: Container(
+                //                           decoration: BoxDecoration(
+                //                               border: Border.all(
+                //                                   color: Colors.grey[500]),
+                //                               borderRadius:
+                //                                   BorderRadius.circular(5)),
+                //                           padding: EdgeInsets.all(2),
+                //                           margin: EdgeInsets.only(
+                //                               left: 10, right: 3),
+                //                           child: Icon(Icons.add,
+                //                               size: 15, color: Colors.black54),
+                //                         ),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //             Container(
+                //               margin: EdgeInsets.only(top: 15, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Product 2",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       Container(
+                //                         decoration: BoxDecoration(
+                //                             border: Border.all(
+                //                                 color: Colors.grey[500]),
+                //                             borderRadius:
+                //                                 BorderRadius.circular(5)),
+                //                         padding: EdgeInsets.all(2),
+                //                         margin:
+                //                             EdgeInsets.only(left: 3, right: 10),
+                //                         child: Icon(Icons.remove,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                       Text(
+                //                         "2",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                       Container(
+                //                         decoration: BoxDecoration(
+                //                             border: Border.all(
+                //                                 color: Colors.grey[500]),
+                //                             borderRadius:
+                //                                 BorderRadius.circular(5)),
+                //                         padding: EdgeInsets.all(2),
+                //                         margin:
+                //                             EdgeInsets.only(left: 10, right: 3),
+                //                         child: Icon(Icons.add,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //             Container(
+                //               margin: EdgeInsets.only(top: 15, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Product 3",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       Container(
+                //                         decoration: BoxDecoration(
+                //                             border: Border.all(
+                //                                 color: Colors.grey[500]),
+                //                             borderRadius:
+                //                                 BorderRadius.circular(5)),
+                //                         padding: EdgeInsets.all(2),
+                //                         margin:
+                //                             EdgeInsets.only(left: 3, right: 10),
+                //                         child: Icon(Icons.remove,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                       Text(
+                //                         "3",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                       Container(
+                //                         decoration: BoxDecoration(
+                //                             border: Border.all(
+                //                                 color: Colors.grey[500]),
+                //                             borderRadius:
+                //                                 BorderRadius.circular(5)),
+                //                         padding: EdgeInsets.all(2),
+                //                         margin:
+                //                             EdgeInsets.only(left: 10, right: 3),
+                //                         child: Icon(Icons.add,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //             Container(
+                //               margin: EdgeInsets.only(top: 15, bottom: 5),
+                //               child: Row(
+                //                 mainAxisAlignment:
+                //                     MainAxisAlignment.spaceBetween,
+                //                 children: <Widget>[
+                //                   Container(
+                //                       //color: Colors.grey[200],
+                //                       //padding: EdgeInsets.all(20),
+                //                       child: Text(
+                //                     "Product 4",
+                //                     style: TextStyle(color: Colors.grey),
+                //                   )),
+                //                   Container(
+                //                       child: Row(
+                //                     children: <Widget>[
+                //                       Container(
+                //                         decoration: BoxDecoration(
+                //                             border: Border.all(
+                //                                 color: Colors.grey[500]),
+                //                             borderRadius:
+                //                                 BorderRadius.circular(5)),
+                //                         padding: EdgeInsets.all(2),
+                //                         margin:
+                //                             EdgeInsets.only(left: 3, right: 10),
+                //                         child: Icon(Icons.remove,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                       Text(
+                //                         "4",
+                //                         textAlign: TextAlign.start,
+                //                         style: TextStyle(color: Colors.black54),
+                //                       ),
+                //                       Container(
+                //                         decoration: BoxDecoration(
+                //                             border: Border.all(
+                //                                 color: Colors.grey[500]),
+                //                             borderRadius:
+                //                                 BorderRadius.circular(5)),
+                //                         padding: EdgeInsets.all(2),
+                //                         margin:
+                //                             EdgeInsets.only(left: 10, right: 3),
+                //                         child: Icon(Icons.add,
+                //                             size: 15, color: Colors.black54),
+                //                       ),
+                //                     ],
+                //                   ))
+                //                 ],
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       )
+                //     ],
+                //   ),
+                // ),
                 Container(
                   width: MediaQuery.of(context).size.width,
                   margin:
@@ -744,19 +786,24 @@ class CheckoutPageState extends State<CheckoutPage>
                                 ),
                               ),
                             ),
-                            Container(
-                                margin: EdgeInsets.only(left: 10),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5.0)),
-                                    color: mainheader,
-                                    border: Border.all(
-                                        width: 0.2, color: Colors.grey)),
-                                child: Text(
-                                  "Apply",
-                                  style: TextStyle(color: Colors.white),
-                                )),
+                            GestureDetector(
+                              onTap: () {
+                                fetchCouponAmount();
+                              },
+                              child: Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                      color: mainheader,
+                                      border: Border.all(
+                                          width: 0.2, color: Colors.grey)),
+                                  child: Text(
+                                    "Apply",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
                           ],
                         ),
                       ),
@@ -803,7 +850,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                   )),
                                   Container(
                                       child: Text(
-                                    "4",
+                                    qtyProduct.toString(),
                                     textAlign: TextAlign.start,
                                     style: TextStyle(color: Colors.black54),
                                   ))
@@ -826,10 +873,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
                                       Text(
-                                        "250.25",
+                                        totalPrice.toString() + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -856,10 +901,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                     children: <Widget>[
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: mainheader),
                                       Text(
-                                        "50.05",
+                                        discTotal.toString() + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -887,7 +930,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: Colors.black54),
                                       Text(
-                                        "200.20",
+                                        subTotal.toString() + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -914,10 +957,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                     children: <Widget>[
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: mainheader),
                                       Text(
-                                        "0.00",
+                                        couponPrice.toString() + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -942,10 +983,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
                                       Text(
-                                        "100.00",
+                                        "100.00/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -973,10 +1012,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black),
                                       Text(
-                                        "300.20",
+                                        payablePrice.toString() + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                             color: Colors.black,
@@ -1034,7 +1071,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                             //color: Colors.grey[200],
                                             //padding: EdgeInsets.all(20),
                                             child: Text(
-                                          "Card Payment",
+                                          "Bkash Payment",
                                           style: TextStyle(color: Colors.grey),
                                         )),
                                       ],
@@ -1065,7 +1102,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                                   margin:
                                                       EdgeInsets.only(left: 5),
                                                   child: Text(
-                                                    "XXX xxxx XXX xxxx",
+                                                    "01786273137",
                                                     style: TextStyle(
                                                         color: Colors.grey),
                                                   )),
@@ -1148,7 +1185,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                                   margin:
                                                       EdgeInsets.only(left: 5),
                                                   child: Text(
-                                                    "Modina Market",
+                                                    place == "" ? "N/A" : place,
                                                     style: TextStyle(
                                                         color: Colors.grey),
                                                   )),
@@ -1190,20 +1227,25 @@ class CheckoutPageState extends State<CheckoutPage>
                     ],
                   ),
                 ),
-                Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.only(
-                        left: 20, right: 20, bottom: 20, top: 10),
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                        color: mainheader,
-                        border: Border.all(width: 0.2, color: Colors.grey)),
-                    child: Text(
-                      "Submit Order",
-                      style: TextStyle(color: Colors.white),
-                      textAlign: TextAlign.center,
-                    )),
+                GestureDetector(
+                  onTap: () {
+                    submitOrder();
+                  },
+                  child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.only(
+                          left: 20, right: 20, bottom: 20, top: 10),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          color: mainheader,
+                          border: Border.all(width: 0.2, color: Colors.grey)),
+                      child: Text(
+                        "Submit Order",
+                        style: TextStyle(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      )),
+                ),
               ],
             ),
           ),
@@ -1221,6 +1263,32 @@ class CheckoutPageState extends State<CheckoutPage>
       setState(() {
         paymentChoose = false;
       });
+    }
+  }
+
+  Future<void> submitOrder() async {
+    print("cart delete");
+    final response =
+        await http.post(ip + 'easy_shopping/order_submit.php', body: {
+      "full_name": "Chitra",
+      "total_product": qtyProduct.toString(),
+      "total_price": totalPrice.toString(),
+      "prod_discount": discTotal.toString(),
+      "sub_total": subTotal.toString(),
+      "coupon_discount": couponPrice.toString(),
+      "shipping_cost": "100",
+      "total_payable": payablePrice.toString(),
+      "payment_method": paymentChoose ? "Cash" : "Bkash",
+      "address": placeController.text,
+      "phon_number": phoneController.text,
+      "delivery_date": runningdate,
+    });
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => OrderPage()));
+    } else {
+      throw Exception('Unable to add order from the REST API');
     }
   }
 }

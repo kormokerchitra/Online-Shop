@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
+import 'package:http/http.dart' as http;
 
 import '../../main.dart';
 

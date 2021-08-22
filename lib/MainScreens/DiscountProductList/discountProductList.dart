@@ -3,24 +3,22 @@ import 'dart:ui' as prefix0;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:online_shopping/Cards/AllDiscountCard/allDiscountCard.dart';
 import 'package:online_shopping/Cards/AllProductCard/allProductCard.dart';
 import 'package:http/http.dart' as http;
+import 'package:online_shopping/Cards/DiscountCard/discountCard.dart';
 import 'dart:async';
 
 import '../../main.dart';
 
-class AllProductPage extends StatefulWidget {
-  final String cat_id;
-  final String cat_name;
-  AllProductPage({this.cat_id, this.cat_name});
-
+class DiscountProductList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return AllProductPageState();
+    return DiscountProductListState();
   }
 }
 
-class AllProductPageState extends State<AllProductPage>
+class DiscountProductListState extends State<DiscountProductList>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
@@ -41,18 +39,17 @@ class AllProductPageState extends State<AllProductPage>
       print(productBody["product_list"]);
       setState(() {
         prodList = productBody["product_list"];
+        for (int i = 0; i < prodList.length; i++) {
+          if (prodList[i]["prod_discount"] != "0") {
+            setState(() {
+              count++;
+            });
+          }
+        }
       });
-      print(prodList.length);
+      print(count);
     } else {
       throw Exception('Unable to fetch products from the REST API');
-    }
-
-    for (int i = 0; i < prodList.length; i++) {
-      if (prodList[i]["cat_id"] == widget.cat_id) {
-        setState(() {
-          count++;
-        });
-      }
     }
   }
 
@@ -68,10 +65,7 @@ class AllProductPageState extends State<AllProductPage>
                 Container(
                   child: Row(
                     children: <Widget>[
-                      Text(
-                          widget.cat_name == null
-                              ? "New Arrival"
-                              : widget.cat_name,
+                      Text("Discount Product",
                           //widget.cat_name,
                           //"${prodList[index]["cat_name"]}",
                           style: TextStyle(
@@ -99,11 +93,11 @@ class AllProductPageState extends State<AllProductPage>
                 )
               : ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
-                    return prodList[index]["cat_id"] == widget.cat_id
-                        ? AllProductCard(prod_item: prodList[index])
+                    return prodList[index]["prod_discount"] != "0"
+                        ? AllDiscountCard(prod_item: prodList[index])
                         : Container();
                   },
-                  itemCount: prodList.length,
+                  itemCount: count,
                 ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'MainScreens/SplashScreen/splash.dart';
 
@@ -11,15 +12,42 @@ Color white = Color(0xFFFFFFFF);
 Color golden = Color(0xFFCFB53B);
 
 String pageDirect = "";
+String userID = "";
 int selectedPage = 0;
 bool isLoggedin = false;
 
-class MyApp extends StatelessWidget {
+String ip = "http://192.168.100.4/";
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    getuserID();
+  }
+
+  getuserID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userID = prefs.getString("userId");
+      if (userID != null) {
+        isLoggedin = true;
+      }
+    });
+    print("userID");
+    print(userID);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'E-commerce',
+      title: 'Easy shopping',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: subheader,

@@ -4,6 +4,9 @@ import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
 import '../../main.dart';
 
 class DiscountCard extends StatefulWidget {
+  final prod_item;
+  DiscountCard({this.prod_item});
+
   @override
   _DiscountCardState createState() => _DiscountCardState();
 }
@@ -22,7 +25,9 @@ class _DiscountCardState extends State<DiscountCard> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DetailsPage()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    DetailsPage(product_info: widget.prod_item)),
           );
         },
         child: Container(
@@ -35,9 +40,9 @@ class _DiscountCardState extends State<DiscountCard> {
                     width: MediaQuery.of(context).size.width,
                     child: Stack(children: <Widget>[
                       Center(
-                        child: Image.asset(
-                          'assets/shoe.png',
-                        ),
+                        child: widget.prod_item["product_img"] == ""
+                            ? Image.asset('assets/product_back.jpg')
+                            : Image.asset('assets/product_back.jpg'),
                       ),
                       Container(
                           padding: EdgeInsets.all(5),
@@ -47,17 +52,18 @@ class _DiscountCardState extends State<DiscountCard> {
                               color: mainheader,
                               border:
                                   Border.all(width: 0.2, color: Colors.grey)),
-                          child:
-                              Text("25%", style: TextStyle(color: sub_white)))
+                          child: Text("${widget.prod_item["prod_discount"]}%",
+                              style: TextStyle(color: sub_white)))
                     ]),
                   )),
               SizedBox(
                 height: 10,
               ),
               Text(
-                "Product Name",
+                "${widget.prod_item["product_name"]}/-",
                 style: TextStyle(fontSize: 14, color: Colors.black38),
                 textAlign: TextAlign.center,
+                maxLines: 2,
               ),
               SizedBox(
                 height: 10,
@@ -76,7 +82,7 @@ class _DiscountCardState extends State<DiscountCard> {
                             size: 18,
                           ),
                           Text(
-                            "20.25",
+                            "${widget.prod_item["product_price"]}/-",
                             style:
                                 TextStyle(fontSize: 16, color: Colors.black87),
                           ),
@@ -96,26 +102,13 @@ class _DiscountCardState extends State<DiscountCard> {
                       color: golden,
                       size: 15,
                     ),
-                    Icon(
-                      Icons.star,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star_half,
-                      color: golden,
-                      size: 15,
-                    ),
-                    Icon(
-                      Icons.star_border,
-                      color: golden,
-                      size: 15,
-                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3),
+                      child: Text(
+                        "${widget.prod_item["prod_rating"]}",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
                   ],
                 ),
               ),

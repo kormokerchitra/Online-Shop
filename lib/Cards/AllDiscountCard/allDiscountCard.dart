@@ -5,15 +5,15 @@ import 'package:http/http.dart' as http;
 
 import '../../main.dart';
 
-class AllProductCard extends StatefulWidget {
+class AllDiscountCard extends StatefulWidget {
   final prod_item;
-  AllProductCard({this.prod_item});
+  AllDiscountCard({this.prod_item});
 
   @override
-  _AllProductCardState createState() => _AllProductCardState();
+  _AllDiscountCardState createState() => _AllDiscountCardState();
 }
 
-class _AllProductCardState extends State<AllProductCard> {
+class _AllDiscountCardState extends State<AllDiscountCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -50,7 +50,7 @@ class _AllProductCardState extends State<AllProductCard> {
                           child: widget.prod_item["product_img"] == ""
                               ? Image.asset('assets/product_back.jpg')
                               : Image.asset('assets/product_back.jpg')),
-                      Expanded(
+                      Flexible(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
@@ -111,7 +111,19 @@ class _AllProductCardState extends State<AllProductCard> {
                                   // ),
                                 ],
                               ),
-                            )
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              child: Flexible(
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 3),
+                                  child: Text(
+                                    "Expiry Date: ${widget.prod_item["prod_disc_date"]}",
+                                    style: TextStyle(color: subheader, fontSize: 11),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -123,12 +135,23 @@ class _AllProductCardState extends State<AllProductCard> {
                     child: Column(
                       children: <Widget>[
                         Container(
-                          color: Colors.white,
-                          child: Icon(
-                            Icons.chevron_right,
-                            color: Colors.grey,
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              color: subheader,
+                              borderRadius: BorderRadius.circular(5)),
+                          margin: EdgeInsets.only(left: 3),
+                          child: Text(
+                            "${widget.prod_item["prod_discount"]}%",
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
+                        // Container(
+                        //   color: Colors.white,
+                        //   child: Icon(
+                        //     Icons.chevron_right,
+                        //     color: Colors.grey,
+                        //   ),
+                        // ),
                       ],
                     )),
               ],

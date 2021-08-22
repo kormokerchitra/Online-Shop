@@ -7,6 +7,7 @@ import 'package:online_shopping/Forms/LoginForm/loginForm.dart';
 import 'dart:async';
 import '../../../main.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   @override

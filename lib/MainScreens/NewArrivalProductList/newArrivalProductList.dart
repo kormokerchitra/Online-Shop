@@ -1,28 +1,26 @@
 import 'dart:convert';
 import 'dart:ui' as prefix0;
 
-import 'package:online_shopping/Cards/FavCard/favCard.dart';
-import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:online_shopping/Cards/AllProductCard/allProductCard.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
 
-import '../../../main.dart';
+import '../../main.dart';
 
-class FavouritePage extends StatefulWidget {
+class NewArrivalProductList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return FavouritePageState();
+    return NewArrivalProductListState();
   }
 }
 
-class FavouritePageState extends State<FavouritePage>
+class NewArrivalProductListState extends State<NewArrivalProductList>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
-  bool _isLoggedIn = false;
-  String _debugLabelString = "";
-  bool _requireConsent = false;
+  int count = 0;
   var prodList = [];
 
   @override
@@ -32,21 +30,17 @@ class FavouritePageState extends State<FavouritePage>
   }
 
   Future<void> fetchProduct() async {
-    final response = await http.get(ip + 'easy_shopping/favourite_list.php');
+    final response = await http.get(ip + 'easy_shopping/product_list.php');
     if (response.statusCode == 200) {
       print(response.body);
       var productBody = json.decode(response.body);
-      print(productBody["favourite_list"]);
+      print(productBody["product_list"]);
       setState(() {
-        for (int i = 0; i < productBody["favourite_list"].length; i++) {
-          if (userID == productBody["favourite_list"][i]["user_id"]) {
-            prodList.add(productBody["favourite_list"][i]);
-          }
-        }
+        prodList = productBody["product_list"];
       });
       print(prodList.length);
     } else {
-      throw Exception('Unable to fetch favourite products from the REST API');
+      throw Exception('Unable to fetch products from the REST API');
     }
   }
 
@@ -62,7 +56,9 @@ class FavouritePageState extends State<FavouritePage>
                 Container(
                   child: Row(
                     children: <Widget>[
-                      Text("Favourite",
+                      Text("New Arrival",
+                          //widget.cat_name,
+                          //"${prodList[index]["cat_name"]}",
                           style: TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold)),
                     ],
@@ -75,17 +71,23 @@ class FavouritePageState extends State<FavouritePage>
       ),
       body: Container(
         color: sub_white,
+        //height: MediaQuery.of(context).size.height,
         child: Container(
           margin: EdgeInsets.only(left: 0, right: 0, top: 0),
           color: sub_white,
           width: MediaQuery.of(context).size.width,
-          ////// <<<<< Favorites List >>>>> //////
-          child: new ListView.builder(
-            itemBuilder: (BuildContext context, int index) =>
-                ////// <<<<< Favorites Card >>>>> //////
-                FavCard(prodList[index]),
-            itemCount: prodList.length,
-          ),
+          child: prodList.length == 0
+              ? Center(
+                  child: Container(
+                    child: Text("No data available!"),
+                  ),
+                )
+              : ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return AllProductCard(prod_item: prodList[index]);
+                  },
+                  itemCount: prodList.length,
+                ),
         ),
       ),
     );
