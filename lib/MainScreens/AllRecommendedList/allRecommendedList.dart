@@ -62,7 +62,7 @@ class AllRecommendedPageState extends State<AllRecommendedPage>
                 Container(
                   child: Row(
                     children: <Widget>[
-                      Text("Recommended List",
+                      Text("Recommended Products",
                           //widget.cat_name,
                           //"${prodList[index]["cat_name"]}",
                           style: TextStyle(

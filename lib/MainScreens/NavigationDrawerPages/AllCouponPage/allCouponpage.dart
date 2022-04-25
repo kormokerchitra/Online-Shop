@@ -203,7 +203,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                     margin:
                                                         EdgeInsets.only(top: 5),
                                                     child: Text(
-                                                      "Discount amount: ${couponListActive[index]["voucher_amount"]}/-",
+                                                      "Discount amount: Tk. ${couponListActive[index]["voucher_amount"]}",
                                                       style: TextStyle(
                                                           color: Colors.grey,
                                                           fontWeight: FontWeight
@@ -301,7 +301,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                     margin:
                                                         EdgeInsets.only(top: 5),
                                                     child: Text(
-                                                      "Discount amount: ${couponListUsed[index]["voucher_amount"]}/-",
+                                                      "Discount amount: Tk. ${couponListUsed[index]["voucher_amount"]}",
                                                       style: TextStyle(
                                                           color: Colors.grey
                                                               .withOpacity(0.5),

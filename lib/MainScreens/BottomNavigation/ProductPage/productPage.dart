@@ -199,7 +199,7 @@ class ProductPageState extends State<ProductPage>
                   color: sub_white,
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.only(left: 10),
-                  height: prodList.length == 0 ? 50 : 230,
+                  height: prodList.length == 0 ? 50 : 270,
                   child: prodList.length == 0
                       ? Center(
                           child: Text("No data available!",
@@ -311,7 +311,7 @@ class ProductPageState extends State<ProductPage>
                   color: sub_white,
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.only(left: 10),
-                  height: discList.length == 0 ? 50 : 230,
+                  height: discList.length == 0 ? 50 : 270,
                   child: discList.length == 0
                       ? Center(
                           child: Text("No data available!",
@@ -345,7 +345,8 @@ class ProductPageState extends State<ProductPage>
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => AllRecommendedPage()));
+                                    builder: (context) =>
+                                        AllRecommendedPage()));
                           },
                           child: Container(
                             child: Row(
@@ -371,7 +372,7 @@ class ProductPageState extends State<ProductPage>
                   color: sub_white,
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.only(left: 10),
-                  height: prodList.length == 0 ? 50 : 230,
+                  height: prodList.length == 0 ? 50 : 270,
                   child: prodList.length == 0
                       ? Center(
                           child: Text("No data available!",

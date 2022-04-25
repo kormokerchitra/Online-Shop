@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
 import 'package:http/http.dart' as http;
+import 'package:online_shopping/Utils/utils.dart';
 
 import '../../main.dart';
 
@@ -14,6 +15,16 @@ class AllProductCard extends StatefulWidget {
 }
 
 class _AllProductCardState extends State<AllProductCard> {
+  int discountPercent = 0, discountAmt = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    discountAmt = Utils().getProductDiscount(
+        widget.prod_item["product_price"], widget.prod_item["prod_discount"]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -89,17 +100,22 @@ class _AllProductCardState extends State<AllProductCard> {
                                 children: <Widget>[
                                   Row(
                                     children: <Widget>[
-                                      Icon(
-                                        Icons.attach_money,
-                                        color: Colors.black87,
-                                        size: 18,
-                                      ),
+                                      // Icon(
+                                      //   Icons.attach_money,
+                                      //   color: Colors.black87,
+                                      //   size: 18,
+                                      // ),
                                       Text(
-                                        "${widget.prod_item["product_price"]}/-",
+                                        "Tk. ${widget.prod_item["product_price"]}",
                                         style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black87,
-                                        ),
+                                            fontSize:
+                                                discountAmt == 0 ? 16 : 13,
+                                            color: discountAmt == 0
+                                                ? Colors.black87
+                                                : Colors.grey,
+                                            decoration: discountAmt == 0
+                                                ? TextDecoration.none
+                                                : TextDecoration.lineThrough),
                                       ),
                                     ],
                                   ),
@@ -111,7 +127,47 @@ class _AllProductCardState extends State<AllProductCard> {
                                   // ),
                                 ],
                               ),
-                            )
+                            ),
+                            discountAmt == 0
+                                ? Container()
+                                : Container(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Container(
+                                          margin: EdgeInsets.only(top: 0),
+                                          child: Row(
+                                            children: <Widget>[
+                                              // Icon(
+                                              //   Icons.attach_money,
+                                              //   color: Colors.black87,
+                                              //   size: 16,
+                                              // ),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Tk. $discountAmt",
+                                                    //"${prodList[index]["product_price"]}/-",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.black87),
+                                                  ),
+                                                  Text(
+                                                    " (${widget.prod_item["prod_discount"]}%)",
+                                                    //"${prodList[index]["product_price"]}/-",
+                                                    style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.black87),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                           ],
                         ),
                       ),

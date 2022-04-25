@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
+import 'package:online_shopping/Utils/utils.dart';
 
 import '../../main.dart';
 
@@ -12,30 +13,40 @@ class DiscountCard extends StatefulWidget {
 }
 
 class _DiscountCardState extends State<DiscountCard> {
+  int discountPercent = 0, discountAmt = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    discountAmt = Utils().getProductDiscount(
+        widget.prod_item["product_price"], widget.prod_item["prod_discount"]);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(5),
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          color: Colors.white,
-          border: Border.all(width: 0.2, color: Colors.grey)),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    DetailsPage(product_info: widget.prod_item)),
-          );
-        },
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  DetailsPage(product_info: widget.prod_item)),
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.all(5),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+            color: Colors.white,
+            border: Border.all(width: 0.2, color: Colors.grey)),
         child: Container(
           width: 100,
           child: Column(
             children: <Widget>[
               Container(
-                  height: 80,
+                  height: 120,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     child: Stack(children: <Widget>[
@@ -60,7 +71,7 @@ class _DiscountCardState extends State<DiscountCard> {
                 height: 10,
               ),
               Text(
-                "${widget.prod_item["product_name"]}/-",
+                "${widget.prod_item["product_name"]}",
                 style: TextStyle(fontSize: 14, color: Colors.black38),
                 textAlign: TextAlign.center,
                 maxLines: 2,
@@ -76,15 +87,23 @@ class _DiscountCardState extends State<DiscountCard> {
                       margin: EdgeInsets.only(top: 0),
                       child: Row(
                         children: <Widget>[
-                          Icon(
-                            Icons.attach_money,
-                            color: Colors.black87,
-                            size: 18,
-                          ),
+                          //Icon(
+                            //Icons.attach_money,
+                            //color:
+                                //discountAmt == 0 ? Colors.black87 : Colors.grey,
+                            //size: discountAmt == 0 ? 18 : 14,
+                          //),
                           Text(
-                            "${widget.prod_item["product_price"]}/-",
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.black87),
+                            "Tk. ${widget.prod_item["product_price"]}",
+                            //"${prodList[index]["product_price"]}/-",
+                            style: TextStyle(
+                                fontSize: discountAmt == 0 ? 16 : 12,
+                                color: discountAmt == 0
+                                    ? Colors.black87
+                                    : Colors.grey,
+                                decoration: discountAmt == 0
+                                    ? TextDecoration.none
+                                    : TextDecoration.lineThrough),
                           ),
                         ],
                       ),
@@ -92,6 +111,33 @@ class _DiscountCardState extends State<DiscountCard> {
                   ],
                 ),
               ),
+              discountAmt == 0
+                  ? Container()
+                  : Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(top: 0),
+                            child: Row(
+                              children: <Widget>[
+                                //Icon(
+                                  //Icons.attach_money,
+                                  //color: Colors.black87,
+                                  //size: 18,
+                                //),
+                                Text(
+                                  "Tk. $discountAmt",
+                                  //"${prodList[index]["product_price"]}/-",
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.black87),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
               Container(
                 margin: EdgeInsets.only(top: 9),
                 child: Row(

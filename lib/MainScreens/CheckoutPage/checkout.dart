@@ -5,8 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:online_shopping/MainScreens/Homepage/homepage.dart';
 import 'package:online_shopping/MainScreens/NavigationDrawerPages/OrderPage/orders.dart';
 import 'package:online_shopping/MainScreens/OrderListPage/orderlist.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../main.dart';
 
@@ -29,7 +31,8 @@ class CheckoutPageState extends State<CheckoutPage>
       runningdate = '',
       place = "",
       phone = "",
-      payment = "";
+      payment = "",
+      user_id = "";
   var dday, finalDate;
   int val = 0, qtyProduct = 0;
   double totalPrice = 0.0,
@@ -39,7 +42,7 @@ class CheckoutPageState extends State<CheckoutPage>
       payablePrice = 0.0;
   DateTime _date = DateTime.now();
   bool placeEdit = false, phoneEdit = false, paymentChoose = false;
-  var cartList = [];
+  var cartList = [], voucherList = [];
 
   @override
   void initState() {
@@ -85,17 +88,47 @@ class CheckoutPageState extends State<CheckoutPage>
   }
 
   Future<void> fetchCouponAmount() async {
-    totalPrice = 0.0;
-    final response = await http.post(ip + 'easy_shopping/voucher_apply.php',
-        body: {"voucher_name": _reviewController.text});
-    if (response.statusCode == 200) {
-      print(response.body);
-      setState(() {
-        couponPrice = double.parse(response.body);
-        payablePrice = (subTotal - couponPrice) + 100;
-      });
+    if (_reviewController.text.isEmpty) {
+      showAlert("Voucher code is empty");
     } else {
-      throw Exception('Unable to fetch cart from the REST API');
+      totalPrice = 0.0;
+      final response = await http.post(ip + 'easy_shopping/voucher_apply.php',
+          body: {"voucher_name": _reviewController.text});
+      if (response.statusCode == 200) {
+        print(response.body);
+        setState(() {
+          var voucherBody = json.decode(response.body);
+          voucherList = voucherBody["voucher_info"];
+
+          for (int i = 0; i < voucherList.length; i++) {
+            String voucherExpDate = voucherList[i]["vou_exp_date"];
+
+            List expArr = voucherExpDate.split("-");
+            String day = expArr[0];
+            int dayInt = int.parse(day);
+            String month = expArr[1];
+            int monthInt = int.parse(month);
+            String year = expArr[2];
+            int yearInt = int.parse(year);
+
+            final now = DateTime.now();
+            final expirationDate = DateTime(yearInt, monthInt, dayInt);
+            final bool isExpired = expirationDate.isBefore(now);
+
+            if (!isExpired) {
+              String voucherAmt = voucherList[i]["voucher_amount"];
+              couponPrice = double.parse(voucherAmt);
+              payablePrice = (subTotal - couponPrice) + 100;
+            } else {
+              showAlert("Voucher date expired!");
+            }
+          }
+          _reviewController.clear();
+          showSuccess("Voucher applied successfully!");
+        });
+      } else {
+        throw Exception('Unable to fetch cart from the REST API');
+      }
     }
   }
 
@@ -874,7 +907,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       child: Row(
                                     children: <Widget>[
                                       Text(
-                                        totalPrice.toString() + "/-",
+                                        totalPrice.toStringAsFixed(2) + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -902,7 +935,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
                                       Text(
-                                        discTotal.toString() + "/-",
+                                        discTotal.toStringAsFixed(2) + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -930,7 +963,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: Colors.black54),
                                       Text(
-                                        subTotal.toString() + "/-",
+                                        subTotal.toStringAsFixed(2) + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -958,7 +991,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
                                       Text(
-                                        couponPrice.toString() + "/-",
+                                        couponPrice.toStringAsFixed(2) + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -1013,7 +1046,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       child: Row(
                                     children: <Widget>[
                                       Text(
-                                        payablePrice.toString() + "/-",
+                                        payablePrice.toStringAsFixed(2) + "/-",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                             color: Colors.black,
@@ -1266,27 +1299,99 @@ class CheckoutPageState extends State<CheckoutPage>
     }
   }
 
+  showAlert(String msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(msg,
+              style: TextStyle(
+                  color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        );
+      },
+    );
+  }
+
+  showSuccess(String msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(msg,
+              style: TextStyle(
+                  color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+        );
+      },
+    );
+  }
+
   Future<void> submitOrder() async {
-    print("cart delete");
+    if (placeController.text.isEmpty) {
+      showAlert("Please provide your address");
+    } else if (phoneController.text.isEmpty) {
+      showAlert("Please provide your phone number");
+    } else {
+      print("cart delete");
+      final response =
+          await http.post(ip + 'easy_shopping/order_submit.php', body: {
+        "full_name": "Chitra",
+        "total_product": qtyProduct.toString(),
+        "total_price": totalPrice.toString(),
+        "prod_discount": discTotal.toString(),
+        "sub_total": subTotal.toString(),
+        "coupon_discount": couponPrice.toString(),
+        "shipping_cost": "100",
+        "total_payable": payablePrice.toString(),
+        "payment_method": paymentChoose ? "Cash" : "Bkash",
+        "address": placeController.text,
+        "phon_number": phoneController.text,
+        "delivery_date": runningdate,
+      });
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        showSuccess(
+            "Order placed successfully. Go to orders section to find your order.");
+        for (int i = 0; i < cartList.length; i++) {
+          int qty = int.parse(cartList[i]["product_qnt"]);
+          String id = cartList[i]["prod_id"];
+
+          stockClearance(id, qty);
+        }
+        deleteCart();
+      } else {
+        throw Exception('Unable to add order from the REST API');
+      }
+    }
+  }
+
+  Future<void> stockClearance(String id, int qty) async {
     final response =
-        await http.post(ip + 'easy_shopping/order_submit.php', body: {
-      "full_name": "Chitra",
-      "total_product": qtyProduct.toString(),
-      "total_price": totalPrice.toString(),
-      "prod_discount": discTotal.toString(),
-      "sub_total": subTotal.toString(),
-      "coupon_discount": couponPrice.toString(),
-      "shipping_cost": "100",
-      "total_payable": payablePrice.toString(),
-      "payment_method": paymentChoose ? "Cash" : "Bkash",
-      "address": placeController.text,
-      "phon_number": phoneController.text,
-      "delivery_date": runningdate,
+        await http.post(ip + "easy_shopping/stock_clearance.php", body: {
+      "prod_id": id,
+      "product_qnt": qty.toString(),
     });
-    print(response.statusCode);
+
+    print("sts code stock - ${response.statusCode}");
     if (response.statusCode == 200) {
+      selectedPage = 0;
+      Navigator.pop(context);
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => OrderPage()));
+          context, MaterialPageRoute(builder: (context) => HomePage()));
+    } else {
+      throw Exception('Unable to add order from the REST API');
+    }
+  }
+
+  Future<void> deleteCart() async {
+    final response =
+        await http.post(ip + "easy_shopping/cart_delete_with_user.php", body: {
+      "user_id": userID,
+    });
+
+    print("sts code stock - ${response.statusCode}");
+    if (response.statusCode == 200) {
     } else {
       throw Exception('Unable to add order from the REST API');
     }

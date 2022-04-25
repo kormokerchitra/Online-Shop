@@ -56,7 +56,7 @@ class NewArrivalProductListState extends State<NewArrivalProductList>
                 Container(
                   child: Row(
                     children: <Widget>[
-                      Text("New Arrival",
+                      Text("New Arrival Products",
                           //widget.cat_name,
                           //"${prodList[index]["cat_name"]}",
                           style: TextStyle(

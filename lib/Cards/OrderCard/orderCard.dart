@@ -93,7 +93,7 @@ class _OrderCardState extends State<OrderCard> {
                                     child: Row(
                                       children: <Widget>[
                                         Text(
-                                          "Total price: ${widget.order_item["total_price"]}/-",
+                                          "Total price: ${widget.order_item["total_payable"]}/-",
                                           style: TextStyle(
                                               fontSize: 15, color: mainheader),
                                         ),

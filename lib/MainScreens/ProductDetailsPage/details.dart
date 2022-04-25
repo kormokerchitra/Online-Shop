@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:online_shopping/MainScreens/LoginPage/login.dart';
 import 'package:http/http.dart' as http;
+import 'package:online_shopping/Utils/utils.dart';
 
 import '../../main.dart';
 
@@ -28,7 +29,13 @@ class DetailsPageState extends State<DetailsPage>
   String _debugLabelString = "", review = '', _ratingStatus = '';
   bool _requireConsent = false, isfav = false;
   CarouselSlider carouselSlider;
-  int _current = 0, num = 0, totalFav = 10, count = 0;
+  int _current = 0,
+      num = 0,
+      totalFav = 10,
+      count = 0,
+      discountPercent = 0,
+      discountAmt = 0,
+      quantity = 0;
   double tk = 0.0;
   List imgList = [
     "assets/tshirt.png",
@@ -52,6 +59,11 @@ class DetailsPageState extends State<DetailsPage>
     super.initState();
     fetchReview();
     fetchCart();
+
+    discountAmt = Utils().getProductDiscount(
+        widget.product_info["product_price"],
+        widget.product_info["prod_discount"]);
+    quantity = int.parse(widget.product_info["prod_quantity"]);
   }
 
   int _rating = 0;
@@ -139,10 +151,39 @@ class DetailsPageState extends State<DetailsPage>
     });
     print(response.statusCode);
     if (response.statusCode == 200) {
+      showConfirmation();
       fetchCart();
     } else {
       throw Exception('Unable to add cart from the REST API');
     }
+  }
+
+  showAlert(String msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(msg,
+              style: TextStyle(
+                  color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        );
+      },
+    );
+  }
+
+  showConfirmation() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text("Added to cart!",
+              style:
+                  TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+        );
+      },
+    );
   }
 
   @override
@@ -269,7 +310,7 @@ class DetailsPageState extends State<DetailsPage>
                       Row(
                         children: <Widget>[
                           Text(
-                            "Product Code : ",
+                            "Product Code: ",
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black45),
                           ),
@@ -287,7 +328,7 @@ class DetailsPageState extends State<DetailsPage>
                       Row(
                         children: <Widget>[
                           Text(
-                            "Size : ",
+                            "Size: ",
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black45),
                           ),
@@ -311,19 +352,56 @@ class DetailsPageState extends State<DetailsPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.attach_money,
-                            color: Colors.black,
-                            size: 20,
+                        children: [
+                          Container(
+                            child: Row(
+                              children: <Widget>[
+                                //Icon(
+                                //Icons.attach_money,
+                                //color: discountAmt == 0.0
+                                //? Colors.black
+                                //: Colors.grey,
+                                //size: 20,
+                                //),
+                                SizedBox(
+                                  width: 0,
+                                ),
+                                Text(
+                                  "Tk. ${widget.product_info["product_price"]}",
+                                  style: TextStyle(
+                                      color: discountAmt == 0.0
+                                          ? Colors.black
+                                          : Colors.grey,
+                                      fontSize: 17,
+                                      decoration: discountAmt == 0.0
+                                          ? TextDecoration.none
+                                          : TextDecoration.lineThrough),
+                                )
+                              ],
+                            ),
                           ),
-                          SizedBox(
-                            width: 0,
-                          ),
-                          Text(
-                            widget.product_info["product_price"],
-                            style: TextStyle(color: Colors.black, fontSize: 17),
-                          )
+                          discountAmt == 0.0
+                              ? Container()
+                              : Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Row(
+                                    children: <Widget>[
+                                      //Icon(
+                                      //Icons.attach_money,
+                                      //color: Colors.black,
+                                      //size: 20,
+                                      //),
+                                      SizedBox(
+                                        width: 0,
+                                      ),
+                                      Text(
+                                        "Tk. $discountAmt (${widget.product_info["prod_discount"]}%)",
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 17),
+                                      )
+                                    ],
+                                  ),
+                                ),
                         ],
                       ),
                       Container(
@@ -738,102 +816,123 @@ class DetailsPageState extends State<DetailsPage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          // Icon(Icons.confirmation_number, color: Colors.black),
-                          // SizedBox(
-                          //   width: 5,
-                          // ),
-                          Text(
-                            "Qty : ",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Container(
-                              color: Colors.grey[200],
-                              padding: EdgeInsets.all(5),
-                              child: Row(
-                                children: <Widget>[
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        if (num <= 0) {
-                                          num = 0;
-                                        } else {
-                                          num--;
-                                        }
-                                      });
-                                    },
-                                    child: Container(
-                                      color: Colors.white,
-                                      child: Icon(
-                                        Icons.remove,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Text(
-                                    num.toString(),
-                                    style: TextStyle(fontSize: 17),
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        num++;
-                                      });
-                                    },
-                                    child: Container(
-                                      color: Colors.white,
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )),
-                        ],
-                      ),
+                      quantity == 0
+                          ? Container(
+                              child: Text("Out of stock",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.redAccent,
+                                      fontWeight: FontWeight.bold)),
+                            )
+                          : Row(
+                              children: <Widget>[
+                                // Icon(Icons.confirmation_number, color: Colors.black),
+                                // SizedBox(
+                                //   width: 5,
+                                // ),
+                                Text(
+                                  "Qty : ",
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Container(
+                                    color: Colors.grey[200],
+                                    padding: EdgeInsets.all(5),
+                                    child: Row(
+                                      children: <Widget>[
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (num <= 0) {
+                                                num = 0;
+                                              } else {
+                                                num--;
+                                              }
+                                            });
+                                          },
+                                          child: Container(
+                                            color: Colors.white,
+                                            child: Icon(
+                                              Icons.remove,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        Text(
+                                          num.toString(),
+                                          style: TextStyle(fontSize: 17),
+                                        ),
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              num++;
+                                              if (num == quantity) {
+                                                num = quantity;
+                                              } else if (num > quantity) {
+                                                num = quantity;
+                                                showAlert("No more products!");
+                                              }
+                                            });
+                                          },
+                                          child: Container(
+                                            color: Colors.white,
+                                            child: Icon(
+                                              Icons.add,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                              ],
+                            ),
                       Container(
                         child: Row(
                           children: <Widget>[
-                            GestureDetector(
-                              onTap: () {
-                                if (isLoggedin) {
-                                  setState(() {
-                                    double price = double.parse(
-                                        widget.product_info["product_price"]);
-                                    double tkTotal = num * price;
-                                    tk += tkTotal;
-                                  });
-                                  addToCart();
-                                } else {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => LoginPage()));
-                                }
-                              },
-                              child: Container(
-                                  margin: EdgeInsets.all(5),
-                                  padding: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5.0)),
-                                      color: mainheader,
-                                      border: Border.all(
-                                          width: 0.2, color: Colors.grey)),
-                                  child: Text(
-                                    "Add to cart",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 12),
-                                  )),
-                            ),
+                            quantity == 0
+                                ? Container()
+                                : GestureDetector(
+                                    onTap: () {
+                                      if (isLoggedin) {
+                                        if (num > 0) {
+                                          setState(() {
+                                            double price = double.parse(widget
+                                                .product_info["product_price"]);
+                                            double tkTotal = num * price;
+                                            tk += tkTotal;
+                                          });
+                                          addToCart();
+                                        }
+                                      } else {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LoginPage()));
+                                      }
+                                    },
+                                    child: Container(
+                                        margin: EdgeInsets.all(5),
+                                        padding: EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(5.0)),
+                                            color: mainheader,
+                                            border: Border.all(
+                                                width: 0.2,
+                                                color: Colors.grey)),
+                                        child: Text(
+                                          "Add to cart",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12),
+                                        )),
+                                  ),
                             GestureDetector(
                               onTap: () {
                                 setState(() {

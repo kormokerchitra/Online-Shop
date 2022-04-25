@@ -65,7 +65,7 @@ class DiscountProductListState extends State<DiscountProductList>
                 Container(
                   child: Row(
                     children: <Widget>[
-                      Text("Discount Product",
+                      Text("Discount Products",
                           //widget.cat_name,
                           //"${prodList[index]["cat_name"]}",
                           style: TextStyle(
