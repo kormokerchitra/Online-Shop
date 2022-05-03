@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/CheckoutPage/checkout.dart';
 import 'package:online_shopping/MainScreens/CreateAccountPage/account.dart';
@@ -256,7 +258,9 @@ class _LoginFormState extends State<LoginForm> {
     print(response.body);
     if (response.statusCode == 200) {
       if (response.body != "failure") {
-        storeToLocal(response.body);
+        var user = json.decode(response.body);
+        userInfo = user["user_info"];
+        storeToLocal(json.encode(userInfo));
         _emailController.clear();
         _passwordController.clear();
         Navigator.pushReplacement(
@@ -300,8 +304,8 @@ class _LoginFormState extends State<LoginForm> {
         });
   }
 
-  storeToLocal(String user_id) async {
+  storeToLocal(String user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("userId", user_id);
+    prefs.setString("user_info", user);
   }
 }

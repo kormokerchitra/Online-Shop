@@ -93,7 +93,7 @@ class _OrderCardState extends State<OrderCard> {
                                     child: Row(
                                       children: <Widget>[
                                         Text(
-                                          "Total price: ${widget.order_item["total_payable"]}/-",
+                                          "Total price: Tk. ${widget.order_item["total_payable"]}",
                                           style: TextStyle(
                                               fontSize: 15, color: mainheader),
                                         ),
@@ -106,7 +106,7 @@ class _OrderCardState extends State<OrderCard> {
                             Container(
                               margin: EdgeInsets.only(top: 5),
                               child: Text(
-                                "Date : ${widget.order_item["delivery_date"]}",
+                                "Date: ${widget.order_item["delivery_date"]}",
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 15,

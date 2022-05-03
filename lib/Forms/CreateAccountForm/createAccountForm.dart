@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:online_shopping/MainScreens/Homepage/homepage.dart';
 import 'package:online_shopping/MainScreens/LoginPage/login.dart';
 import 'package:http/http.dart' as http;
 import '../../main.dart';
@@ -11,19 +13,26 @@ class CreateAccountForm extends StatefulWidget {
 }
 
 class _CreateAccountFormState extends State<CreateAccountForm> {
-  TextEditingController _dayController = TextEditingController();
-  TextEditingController _monthController = TextEditingController();
+  TextEditingController _fullNameController = TextEditingController();
+  TextEditingController _userNameController = TextEditingController();
+  TextEditingController _addressController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _passController = TextEditingController();
+  TextEditingController _conPassController = TextEditingController();
   int cardStatus = 0;
-  Future<File> fileImage;
+  File fileImage;
 
   @override
   void initState() {
     super.initState();
   }
 
-  pickImagefromGallery(ImageSource src) {
+  Future<Null> pickImagefromGallery(ImageSource src) async {
+    final image = await ImagePicker.pickImage(source: src);
+
     setState(() {
-      fileImage = ImagePicker.pickImage(source: src);
+      fileImage = image;
     });
   }
 
@@ -78,33 +87,20 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                         child: Center(
                           child: Stack(
                             children: <Widget>[
-                              FutureBuilder<File>(
-                                future: fileImage,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<File> snapshot) {
-                                  if (snapshot.connectionState ==
-                                          ConnectionState.done &&
-                                      snapshot.data != null) {
-                                    return Container(
+                              fileImage != null
+                                  ? Container(
                                       padding: EdgeInsets.all(1.0),
                                       child: CircleAvatar(
                                         radius: 50.0,
                                         backgroundColor: Colors.transparent,
-                                        backgroundImage:
-                                            FileImage(snapshot.data),
+                                        backgroundImage: FileImage(fileImage),
                                       ),
                                       decoration: new BoxDecoration(
                                         color: Colors.grey, // border color
                                         shape: BoxShape.circle,
                                       ),
-                                    );
-                                  } else if (snapshot.error != null) {
-                                    return const Text(
-                                      'Error Picking Image',
-                                      textAlign: TextAlign.center,
-                                    );
-                                  } else {
-                                    return Container(
+                                    )
+                                  : Container(
                                       padding: EdgeInsets.all(1.0),
                                       child: CircleAvatar(
                                         radius: 50.0,
@@ -116,10 +112,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                         color: Colors.grey, // border color
                                         shape: BoxShape.circle,
                                       ),
-                                    );
-                                  }
-                                },
-                              ),
+                                    ),
                               Container(
                                 margin: EdgeInsets.only(left: 80),
                                 child: Icon(Icons.add_a_photo,
@@ -174,6 +167,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _fullNameController,
                                 autofocus: false,
                                 decoration: InputDecoration(
                                   icon: const Icon(
@@ -239,6 +233,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _userNameController,
                                 autofocus: false,
                                 decoration: InputDecoration(
                                   icon: const Icon(
@@ -304,6 +299,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _addressController,
                                 autofocus: false,
                                 decoration: InputDecoration(
                                   icon: const Icon(
@@ -369,6 +365,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _emailController,
                                 autofocus: false,
                                 decoration: InputDecoration(
                                   icon: const Icon(
@@ -434,6 +431,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _phoneController,
                                 autofocus: false,
                                 decoration: InputDecoration(
                                   icon: const Icon(
@@ -499,6 +497,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _passController,
                                 autofocus: false,
                                 obscureText: true,
                                 decoration: InputDecoration(
@@ -565,6 +564,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                   border: Border.all(
                                       width: 0.5, color: Colors.grey)),
                               child: TextFormField(
+                                controller: _conPassController,
                                 autofocus: false,
                                 obscureText: true,
                                 decoration: InputDecoration(
@@ -628,23 +628,76 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                 ),
               ),
             ),
-            Container(
-                width: MediaQuery.of(context).size.width,
-                margin:
-                    EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 10),
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    color: mainheader,
-                    border: Border.all(width: 0.2, color: Colors.grey)),
-                child: Text(
-                  "Register",
-                  style: TextStyle(color: Colors.white),
-                  textAlign: TextAlign.center,
-                )),
+            GestureDetector(
+              onTap: () {
+                createAccount();
+              },
+              child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin:
+                      EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 10),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      color: mainheader,
+                      border: Border.all(width: 0.2, color: Colors.grey)),
+                  child: Text(
+                    "Register",
+                    style: TextStyle(color: Colors.white),
+                    textAlign: TextAlign.center,
+                  )),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> createAccount() async {
+    if (_passController.text != _conPassController.text) {
+      showAlert("Password doesn't match");
+    } else {
+      List<int> imageBytes = fileImage.readAsBytesSync();
+      print(imageBytes);
+      String base64Image = base64Encode(imageBytes);
+      final response =
+          await http.post(ip + 'easy_shopping/user_add.php', body: {
+        "image": base64Image,
+        "full_name": _fullNameController.text,
+        "username": _userNameController.text,
+        "address": _addressController.text,
+        "email": _emailController.text,
+        "phone_num": _phoneController.text,
+        "password": _passController.text,
+      });
+      if (response.statusCode == 200) {
+        print(response.body);
+
+        setState(() {
+          if (response.body == "Success") {
+            showAlert("Account created successfully");
+          }
+        });
+        selectedPage = 0;
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomePage()));
+      } else {
+        throw Exception('Unable to update user from the REST API');
+      }
+    }
+  }
+
+  showAlert(String msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(msg,
+              style: TextStyle(
+                  color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        );
+      },
     );
   }
 }

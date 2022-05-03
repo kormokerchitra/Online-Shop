@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
 import 'package:online_shopping/MainScreens/CheckoutPage/checkout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:online_shopping/MainScreens/Homepage/homepage.dart';
 import 'package:online_shopping/MainScreens/LoginPage/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:online_shopping/Utils/utils.dart';
@@ -58,7 +60,10 @@ class DetailsPageState extends State<DetailsPage>
   void initState() {
     super.initState();
     fetchReview();
-    fetchCart();
+    if (userInfo != null) {
+      fetchCart();
+      fetchFavlist();
+    }
 
     discountAmt = Utils().getProductDiscount(
         widget.product_info["product_price"],
@@ -69,25 +74,32 @@ class DetailsPageState extends State<DetailsPage>
   int _rating = 0;
 
   void rate(int rating) {
-    if (rating == 1) {
-      _ratingStatus = "Poor";
-    }
-    if (rating == 2) {
-      _ratingStatus = "Average";
-    }
-    if (rating == 3) {
-      _ratingStatus = "Good";
-    }
-    if (rating == 4) {
-      _ratingStatus = "Very Good";
-    }
-    if (rating == 5) {
-      _ratingStatus = "Excellent";
-    }
+    _rating = rating;
+    setState(() {
+      if (rating == 1) {
+        _ratingStatus = "Poor";
+      }
+      if (rating == 2) {
+        _ratingStatus = "Average";
+      }
+      if (rating == 3) {
+        _ratingStatus = "Good";
+      }
+      if (rating == 4) {
+        _ratingStatus = "Very Good";
+      }
+      if (rating == 5) {
+        _ratingStatus = "Excellent";
+      }
+    });
   }
 
   Future<void> fetchReview() async {
-    final response = await http.get(ip + 'easy_shopping/review_list.php');
+    final response =
+        await http.post(ip + 'easy_shopping/review_list.php', body: {
+      "prod_id": widget.product_info["prod_id"],
+      "cat_id": widget.product_info["cat_id"]
+    });
     if (response.statusCode == 200) {
       print(response.body);
       var reviewBody = json.decode(response.body);
@@ -109,10 +121,67 @@ class DetailsPageState extends State<DetailsPage>
     }
   }
 
+  Future<void> addToFavlist() async {
+    final response =
+        await http.post(ip + 'easy_shopping/favourite_add.php', body: {
+      "prod_id": widget.product_info["prod_id"],
+      "user_id": "${userInfo["user_id"]}",
+    });
+    if (response.statusCode == 200) {
+      setState(() {
+        isfav = true;
+      });
+      showConfirmation("Added to favourite successfully!");
+    } else {
+      throw Exception('Unable to add favourite in the REST API');
+    }
+  }
+
+  Future<void> fetchFavlist() async {
+    final response = await http
+        .post(ip + 'easy_shopping/favourite_get_with_product.php', body: {
+      "user_id": "${userInfo["user_id"]}",
+      "prod_id": widget.product_info["prod_id"],
+    });
+    if (response.statusCode == 200) {
+      print(response.body);
+      setState(() {
+        if (response.body == "Success") {
+          isfav = true;
+        } else {
+          isfav = false;
+        }
+      });
+    } else {
+      throw Exception('Unable to fetch favourite products from the REST API');
+    }
+  }
+
+  Future<void> addReview() async {
+    var now = new DateTime.now();
+    var formatter = new DateFormat('dd-MM-yyyy');
+    String formattedDate = formatter.format(now);
+    final response =
+        await http.post(ip + 'easy_shopping/review_add.php', body: {
+      "prod_id": widget.product_info["prod_id"],
+      "cat_id": widget.product_info["cat_id"],
+      "rating": "$_rating",
+      "reviews": _reviewController.text,
+      "user_id": "${userInfo["user_id"]}",
+      "product_name": widget.product_info["product_name"],
+      "date": formattedDate,
+    });
+    if (response.statusCode == 200) {
+      showConfirmation("Review added successfully!");
+    } else {
+      throw Exception('Unable to fetch reviews from the REST API');
+    }
+  }
+
   Future<void> fetchCart() async {
     totalPrice = 0.0;
-    final response = await http
-        .post(ip + 'easy_shopping/cart_list.php', body: {"user_id": userID});
+    final response = await http.post(ip + 'easy_shopping/cart_list.php',
+        body: {"user_id": "${userInfo["user_id"]}"});
     if (response.statusCode == 200) {
       print(response.body);
       var cartBody = json.decode(response.body);
@@ -143,15 +212,12 @@ class DetailsPageState extends State<DetailsPage>
     final response = await http.post(ip + 'easy_shopping/cart_add.php', body: {
       "cat_id": widget.product_info["cat_id"],
       "prod_id": widget.product_info["prod_id"],
-      "product_name": widget.product_info["product_name"],
-      "product_price": widget.product_info["product_price"],
       "product_qnt": "$num",
-      "prod_discount": widget.product_info["prod_discount"],
-      "user_id": userID,
+      "user_id": "${userInfo["user_id"]}",
     });
-    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
-      showConfirmation();
+      showConfirmation("Added to cart!");
       fetchCart();
     } else {
       throw Exception('Unable to add cart from the REST API');
@@ -172,13 +238,70 @@ class DetailsPageState extends State<DetailsPage>
     );
   }
 
-  showConfirmation() {
+  Future<void> showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete'),
+          content: Text('Do you want to delete from favourite list?'),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 10),
+                    child: Text('No')),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                deleteFavlist();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 10),
+                    child: Text('Yes')),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteFavlist() async {
+    final response =
+        await http.post(ip + 'easy_shopping/favourite_delete.php', body: {
+      "user_id": "${userInfo["user_id"]}",
+      "prod_id": widget.product_info["prod_id"],
+    });
+    if (response.statusCode == 200) {
+      print(response.body);
+      setState(() {
+        if (response.body == "Success") {
+          isfav = false;
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => HomePage()));
+        } else {}
+      });
+    } else {
+      throw Exception('Unable to fetch favourite products from the REST API');
+    }
+  }
+
+  showConfirmation(String msg) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Text("Added to cart!",
+          child: Text(msg,
               style:
                   TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
         );
@@ -937,8 +1060,11 @@ class DetailsPageState extends State<DetailsPage>
                               onTap: () {
                                 setState(() {
                                   if (isLoggedin) {
-                                    isfav = true;
-                                    totalFav++;
+                                    if (isfav) {
+                                      showMyDialog();
+                                    } else {
+                                      addToFavlist();
+                                    }
                                   } else {
                                     Navigator.push(
                                         context,
@@ -948,7 +1074,7 @@ class DetailsPageState extends State<DetailsPage>
                                 });
                               },
                               child: Container(
-                                //padding: EdgeInsets.all(5),
+                                padding: EdgeInsets.all(10),
                                 child: Row(
                                   children: <Widget>[
                                     Icon(
@@ -959,11 +1085,11 @@ class DetailsPageState extends State<DetailsPage>
                                           ? Colors.redAccent
                                           : Colors.grey,
                                     ),
-                                    Text(
-                                      " ($totalFav)",
-                                      style: TextStyle(
-                                          color: Colors.black45, fontSize: 12),
-                                    )
+                                    // Text(
+                                    //   " ($totalFav)",
+                                    //   style: TextStyle(
+                                    //       color: Colors.black45, fontSize: 12),
+                                    // )
                                   ],
                                 ),
                               ),
@@ -1355,19 +1481,24 @@ class DetailsPageState extends State<DetailsPage>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                Container(
-                                    margin: EdgeInsets.only(top: 10),
-                                    padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5.0)),
-                                        color: mainheader,
-                                        border: Border.all(
-                                            width: 0.2, color: Colors.grey)),
-                                    child: Text(
-                                      "Submit",
-                                      style: TextStyle(color: Colors.white),
-                                    )),
+                                GestureDetector(
+                                  onTap: () {
+                                    addReview();
+                                  },
+                                  child: Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(5.0)),
+                                          color: mainheader,
+                                          border: Border.all(
+                                              width: 0.2, color: Colors.grey)),
+                                      child: Text(
+                                        "Submit",
+                                        style: TextStyle(color: Colors.white),
+                                      )),
+                                ),
                               ],
                             ),
                           ],

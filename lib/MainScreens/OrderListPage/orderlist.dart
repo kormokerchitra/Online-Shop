@@ -177,7 +177,7 @@ class OrderListPageState extends State<OrderListPage>
                                         //color: Colors.grey[200],
                                         //padding: EdgeInsets.all(20),
                                         child: Text(
-                                      "Appifylab",
+                                      "Chitra",
                                       style: TextStyle(color: Colors.black54),
                                     )),
                                   ],
@@ -206,7 +206,7 @@ class OrderListPageState extends State<OrderListPage>
                                           Container(
                                               margin: EdgeInsets.only(left: 5),
                                               child: Text(
-                                                "Modina Market",
+                                                "Machudighirpar",
                                                 style: TextStyle(
                                                     color: Colors.grey),
                                               )),
@@ -834,7 +834,7 @@ class OrderListPageState extends State<OrderListPage>
                                                   margin:
                                                       EdgeInsets.only(left: 5),
                                                   child: Text(
-                                                    "Modina Market",
+                                                    "Machudighirpar",
                                                     style: TextStyle(
                                                         color: Colors.grey),
                                                   )),

@@ -49,13 +49,17 @@ class CheckoutPageState extends State<CheckoutPage>
     var now = new DateTime.now();
     runningdate = new DateFormat("yyyy-MM-dd").format(now);
     fetchCart();
+    placeController.text ="${userInfo["address"]}";
+    place = placeController.text;
+    phoneController.text ="${userInfo["phone_num"]}";
+    phone = phoneController.text;
     super.initState();
   }
 
   Future<void> fetchCart() async {
     totalPrice = 0.0;
     final response = await http
-        .post(ip + 'easy_shopping/cart_list.php', body: {"user_id": userID});
+        .post(ip + 'easy_shopping/cart_list.php', body: {"user_id": "${userInfo["user_id"]}"});
     if (response.statusCode == 200) {
       print(response.body);
       var cartBody = json.decode(response.body);
@@ -249,7 +253,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                         //color: Colors.grey[200],
                                         //padding: EdgeInsets.all(20),
                                         child: Text(
-                                      "Chitra",
+                                      "${userInfo["full_name"]}",
                                       style: TextStyle(color: Colors.black54),
                                     )),
                                   ],
@@ -907,7 +911,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       child: Row(
                                     children: <Widget>[
                                       Text(
-                                        totalPrice.toStringAsFixed(2) + "/-",
+                                        "Tk. " + totalPrice.toStringAsFixed(2),
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -935,7 +939,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
                                       Text(
-                                        discTotal.toStringAsFixed(2) + "/-",
+                                        "Tk. " + discTotal.toStringAsFixed(2),
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -960,10 +964,10 @@ class CheckoutPageState extends State<CheckoutPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black54),
                                       Text(
-                                        subTotal.toStringAsFixed(2) + "/-",
+                                        "Tk. " + subTotal.toStringAsFixed(2),
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -991,7 +995,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
                                       Text(
-                                        couponPrice.toStringAsFixed(2) + "/-",
+                                        "Tk. " + couponPrice.toStringAsFixed(2),
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -1017,7 +1021,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       child: Row(
                                     children: <Widget>[
                                       Text(
-                                        "100.00/-",
+                                        "Tk. 100.00",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -1046,7 +1050,7 @@ class CheckoutPageState extends State<CheckoutPage>
                                       child: Row(
                                     children: <Widget>[
                                       Text(
-                                        payablePrice.toStringAsFixed(2) + "/-",
+                                        "Tk. " + payablePrice.toStringAsFixed(2),
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                             color: Colors.black,
@@ -1336,7 +1340,7 @@ class CheckoutPageState extends State<CheckoutPage>
       print("cart delete");
       final response =
           await http.post(ip + 'easy_shopping/order_submit.php', body: {
-        "full_name": "Chitra",
+        "user_id": "${userInfo["user_id"]}",
         "total_product": qtyProduct.toString(),
         "total_price": totalPrice.toString(),
         "prod_discount": discTotal.toString(),
@@ -1387,7 +1391,7 @@ class CheckoutPageState extends State<CheckoutPage>
   Future<void> deleteCart() async {
     final response =
         await http.post(ip + "easy_shopping/cart_delete_with_user.php", body: {
-      "user_id": userID,
+      "user_id": "${userInfo["user_id"]}",
     });
 
     print("sts code stock - ${response.statusCode}");

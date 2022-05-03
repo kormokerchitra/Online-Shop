@@ -641,10 +641,10 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black54),
                                       Text(
-                                        widget.orderDetails["total_price"],
+                                        "Tk. " + widget.orderDetails["total_price"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -671,10 +671,10 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                     children: <Widget>[
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: mainheader),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: mainheader),
                                       Text(
-                                        widget.orderDetails["prod_discount"],
+                                        "Tk. " + widget.orderDetails["prod_discount"],
                                         //"${prodList[index]["prod_discount"]}",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
@@ -700,10 +700,10 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black54),
                                       Text(
-                                        widget.orderDetails["sub_total"],
+                                        "Tk. " + widget.orderDetails["sub_total"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -730,10 +730,10 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                     children: <Widget>[
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: mainheader),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: mainheader),
                                       Text(
-                                        widget.orderDetails["coupon_discount"],
+                                        "Tk. " + widget.orderDetails["coupon_discount"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -758,10 +758,10 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black54),
                                       Text(
-                                        widget.orderDetails["shipping_cost"],
+                                        "Tk. " + widget.orderDetails["shipping_cost"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -789,10 +789,10 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black),
                                       Text(
-                                        widget.orderDetails["total_payable"],
+                                        "Tk. " + widget.orderDetails["total_payable"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                             color: Colors.black,

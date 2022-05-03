@@ -30,8 +30,8 @@ class ProductPageState extends State<ProductPage>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
-  var categoryList = [];
-  var prodList = [], discList = [], recomList = [];
+  var categoryList = [], productBody;
+  var prodList = [], discList = [], recomList = [], tempList = [];
   int discountCount = 0;
 
   @override
@@ -65,7 +65,7 @@ class ProductPageState extends State<ProductPage>
     final response = await http.get(ip + 'easy_shopping/product_list.php');
     if (response.statusCode == 200) {
       print(response.body);
-      var productBody = json.decode(response.body);
+      productBody = json.decode(response.body);
       print(productBody["product_list"]);
       setState(() {
         int cc = productBody["product_list"].length <= 5
@@ -75,22 +75,68 @@ class ProductPageState extends State<ProductPage>
         print(cc);
         for (int i = 0; i < cc; i++) {
           prodList.add(productBody["product_list"][i]);
-          if (prodList[i]["prod_discount"] != "0") {
-            discountCount++;
-            discList.add(productBody["product_list"][i]);
-          }
-          double rating = double.parse(prodList[i]["prod_rating"]);
-
-          if (rating >= 4) {
-            recomList.add(productBody["product_list"][i]);
-          }
         }
+        for (int i = 0; i < productBody["product_list"].length; i++) {
+          tempList.add(productBody["product_list"][i]);
+        }
+        fetchDiscount();
+        fetchRecommended();
       });
-      print("rodList.length");
+      print("prodList.length");
       print(prodList.length);
     } else {
       throw Exception('Unable to fetch products from the REST API');
     }
+  }
+
+  Future<void> fetchDiscount() async {
+    List newList = [];
+    setState(() {
+      int tempCount = tempList.length;
+      print("firstempCountt5");
+      print(tempCount);
+      for (int i = 0; i < tempCount; i++) {
+        if (tempList[i]["prod_discount"] != "0") {
+          newList.add(tempList[i]);
+        }
+      }
+
+      int first5 = newList.take(5).length;
+      print("first5");
+      print(first5);
+      for (int i = 0; i < first5; i++) {
+        discountCount++;
+        discList.add(newList[i]);
+      }
+
+      print("discountCount - $discountCount");
+    });
+  }
+
+  Future<void> fetchRecommended() async {
+    List newList = [];
+    setState(() {
+      int tempCount = tempList.length;
+      print("tempCount");
+      print(tempCount);
+      for (int i = 0; i < tempCount; i++) {
+        double rating = double.parse(tempList[i]["prod_rating"]);
+        if (rating >= 4) {
+          newList.add(tempList[i]);
+        }
+      }
+
+      print("newList chk - ${newList.length}");
+
+      int first5 = newList.take(5).length;
+      print("first5");
+      print(first5);
+      for (int i = 0; i < first5; i++) {
+        recomList.add(newList[i]);
+      }
+
+      print("recommendedCount - ${recomList.length}");
+    });
   }
 
   @override
@@ -380,12 +426,13 @@ class ProductPageState extends State<ProductPage>
                       : new ListView.builder(
                           physics: BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
-                          itemBuilder: (BuildContext context, int index) =>
-                              ////// <<<<< New Arrival Card >>>>> //////
-                              RecommendedCard(
-                            prodList[index],
-                          ),
-                          itemCount: prodList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            ////// <<<<< Recommended Card >>>>> //////
+                            return RecommendedCard(
+                              recomList[index],
+                            );
+                          },
+                          itemCount: recomList.length,
                         ),
                 ),
               ],

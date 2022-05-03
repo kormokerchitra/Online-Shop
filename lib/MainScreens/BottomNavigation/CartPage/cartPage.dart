@@ -3,6 +3,7 @@ import 'dart:ui' as prefix0;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping/Cards/CartCard/cartCard.dart';
+import 'package:online_shopping/Forms/EditProfileForm/editProfileForm.dart';
 import 'package:online_shopping/Forms/LoginForm/loginForm.dart';
 import 'package:online_shopping/MainScreens/CheckoutPage/checkout.dart';
 import 'package:online_shopping/MainScreens/LoginPage/login.dart';
@@ -28,13 +29,15 @@ class CartPageState extends State<CartPage>
   @override
   void initState() {
     super.initState();
-    fetchCart();
+    if (userInfo != null) {
+      fetchCart();
+    }
   }
 
   Future<void> fetchCart() async {
     totalPrice = 0.0;
-    final response = await http
-        .post(ip + 'easy_shopping/cart_list.php', body: {"user_id": userID});
+    final response = await http.post(ip + 'easy_shopping/cart_list.php',
+        body: {"user_id": "${userInfo["user_id"]}"});
     if (response.statusCode == 200) {
       print(response.body);
       var cartBody = json.decode(response.body);
@@ -67,228 +70,196 @@ class CartPageState extends State<CartPage>
         //height: MediaQuery.of(context).size.height,
         child: Stack(
           children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(left: 0, right: 0, top: 40),
-              color: sub_white,
-              width: MediaQuery.of(context).size.width,
-              child: cartList.length == 0
-                  ? Center(
-                      child: Container(
-                        child: Text("No products added to cart!"),
-                      ),
-                    )
-                  : new ListView.builder(
-                      itemBuilder: (BuildContext context, int index) {
-                        int discountAmt = Utils().getProductDiscount(
-                            cartList[index]["product_price"],
-                            cartList[index]["prod_discount"]);
-                        return Container(
-                          margin: EdgeInsets.only(
-                              left: 20, right: 20, top: 5, bottom: 5),
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(1.0)),
-                              color: Colors.white,
-                              border:
-                                  Border.all(width: 0.2, color: Colors.grey)),
-                          child: Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Expanded(
-                                  // color: Colors.red,
+            !isLoggedin
+                ? SingleChildScrollView(child: LoginForm())
+                : Container(
+                    margin: EdgeInsets.only(left: 0, right: 0, top: 40),
+                    color: sub_white,
+                    width: MediaQuery.of(context).size.width,
+                    child: cartList.length == 0
+                        ? Center(
+                            child: Container(
+                              child: Text("No products added to cart!"),
+                            ),
+                          )
+                        : new ListView.builder(
+                            itemBuilder: (BuildContext context, int index) {
+                              int discountAmt = Utils().getProductDiscount(
+                                  cartList[index]["product_price"],
+                                  cartList[index]["prod_discount"]);
+                              return Container(
+                                margin: EdgeInsets.only(
+                                    left: 20, right: 20, top: 5, bottom: 5),
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(1.0)),
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        width: 0.2, color: Colors.grey)),
+                                child: Container(
                                   child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
                                       Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                        // color: Colors.red,
+                                        child: Row(
                                           children: <Widget>[
-                                            Text(
-                                              cartList[index]["product_name"],
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  fontSize: 17,
-                                                  color: Colors.black87),
-                                              textAlign: TextAlign.start,
-                                            ),
-                                            Container(
-                                              margin: EdgeInsets.only(top: 5),
-                                              child: Row(
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: <Widget>[
-                                                  Icon(
-                                                    Icons.format_list_numbered,
-                                                    color: golden,
-                                                    size: 17,
+                                                  Text(
+                                                    cartList[index]
+                                                        ["product_name"],
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.black87),
+                                                    textAlign: TextAlign.start,
                                                   ),
                                                   Container(
-                                                    margin: EdgeInsets.only(
-                                                        left: 3),
-                                                    child: Text(
-                                                      cartList[index]
-                                                          ["product_qnt"],
-                                                      style: TextStyle(
-                                                          color: Colors.grey),
+                                                    margin:
+                                                        EdgeInsets.only(top: 5),
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons
+                                                              .format_list_numbered,
+                                                          color: golden,
+                                                          size: 17,
+                                                        ),
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 3),
+                                                          child: Text(
+                                                            cartList[index]
+                                                                ["product_qnt"],
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .grey),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    margin:
+                                                        EdgeInsets.only(top: 5),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: <Widget>[
+                                                        Row(
+                                                          children: <Widget>[
+                                                            //Icon(
+                                                            //Icons.attach_money,
+                                                            //color: Colors.black54,
+                                                            //size: 17,
+                                                            //),
+                                                            SizedBox(
+                                                              width: 3,
+                                                            ),
+                                                            Text(
+                                                              discountAmt == 0
+                                                                  ? "Tk. " +
+                                                                      cartList[
+                                                                              index]
+                                                                          [
+                                                                          "product_price"]
+                                                                  : "Tk. $discountAmt",
+                                                              style: TextStyle(
+                                                                fontSize: 14,
+                                                                color: Colors
+                                                                    .black54,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 20,
+                                                                  right: 5),
+                                                          child: Row(
+                                                            children: <Widget>[
+                                                              GestureDetector(
+                                                                onTap: () {
+                                                                  showMyDialog(
+                                                                      index);
+                                                                },
+                                                                child: Icon(
+                                                                  Icons.delete,
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      500],
+                                                                  size: 20,
+                                                                ),
+                                                              ),
+                                                              // SizedBox(
+                                                              //   width: 3,
+                                                              // ),
+                                                              // Text(
+                                                              //   "XXL",
+                                                              //   style: TextStyle(
+                                                              //       fontSize: 14,
+                                                              //       color: Colors.grey),
+                                                              // ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        // Icon(
+                                                        //   Icons.delete,
+                                                        //   color: Colors.grey,
+                                                        //   size: 23,
+                                                        // ),
+                                                      ],
                                                     ),
                                                   )
                                                 ],
                                               ),
                                             ),
-                                            Container(
-                                              margin: EdgeInsets.only(top: 5),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: <Widget>[
-                                                  Row(
-                                                    children: <Widget>[
-                                                      Icon(
-                                                        Icons.attach_money,
-                                                        color: Colors.black54,
-                                                        size: 17,
-                                                      ),
-                                                      SizedBox(
-                                                        width: 3,
-                                                      ),
-                                                      Text(
-                                                        discountAmt == 0
-                                                            ? cartList[index][
-                                                                "product_price"]
-                                                            : "$discountAmt",
-                                                        style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: Colors.black54,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Container(
-                                                    margin: EdgeInsets.only(
-                                                        left: 20, right: 5),
-                                                    child: Row(
-                                                      children: <Widget>[
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (BuildContext
-                                                                      context) {
-                                                                return Expanded(
-                                                                  child:
-                                                                      AlertDialog(
-                                                                    title: Text(
-                                                                        'Delete Cart Item'),
-                                                                    content: Text(
-                                                                        'Do you want to delete the item?'),
-                                                                    actions: [
-                                                                      GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              const EdgeInsets.all(8.0),
-                                                                          child: Container(
-                                                                              margin: EdgeInsets.only(right: 10, bottom: 10),
-                                                                              child: Text('No')),
-                                                                        ),
-                                                                      ),
-                                                                      GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                          deleteCart(cartList[index]
-                                                                              [
-                                                                              "cart_id"]);
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              const EdgeInsets.all(8.0),
-                                                                          child: Container(
-                                                                              margin: EdgeInsets.only(right: 10, bottom: 10),
-                                                                              child: Text('Yes')),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                );
-                                                              },
-                                                            );
-                                                          },
-                                                          child: Icon(
-                                                            Icons.delete,
-                                                            color: Colors
-                                                                .grey[500],
-                                                            size: 20,
-                                                          ),
-                                                        ),
-                                                        // SizedBox(
-                                                        //   width: 3,
-                                                        // ),
-                                                        // Text(
-                                                        //   "XXL",
-                                                        //   style: TextStyle(
-                                                        //       fontSize: 14,
-                                                        //       color: Colors.grey),
-                                                        // ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  // Icon(
-                                                  //   Icons.delete,
-                                                  //   color: Colors.grey,
-                                                  //   size: 23,
-                                                  // ),
-                                                ],
-                                              ),
-                                            )
                                           ],
                                         ),
                                       ),
+                                      // Container(
+                                      //     color: Colors.grey[200],
+                                      //     padding: EdgeInsets.all(10),
+                                      //     child: Column(
+                                      //       children: <Widget>[
+                                      //         Container(
+                                      //           color: Colors.white,
+                                      //           child: Icon(
+                                      //             Icons.add,
+                                      //             color: Colors.grey,
+                                      //           ),
+                                      //         ),
+                                      //         Container(
+                                      //             margin: EdgeInsets.only(
+                                      //                 top: 10, bottom: 10),
+                                      //             child: Text("1")),
+                                      //         Container(
+                                      //           color: Colors.white,
+                                      //           child: Icon(
+                                      //             Icons.remove,
+                                      //             color: Colors.grey,
+                                      //           ),
+                                      //         )
+                                      //       ],
+                                      //     )),
                                     ],
                                   ),
                                 ),
-                                // Container(
-                                //     color: Colors.grey[200],
-                                //     padding: EdgeInsets.all(10),
-                                //     child: Column(
-                                //       children: <Widget>[
-                                //         Container(
-                                //           color: Colors.white,
-                                //           child: Icon(
-                                //             Icons.add,
-                                //             color: Colors.grey,
-                                //           ),
-                                //         ),
-                                //         Container(
-                                //             margin: EdgeInsets.only(
-                                //                 top: 10, bottom: 10),
-                                //             child: Text("1")),
-                                //         Container(
-                                //           color: Colors.white,
-                                //           child: Icon(
-                                //             Icons.remove,
-                                //             color: Colors.grey,
-                                //           ),
-                                //         )
-                                //       ],
-                                //     )),
-                              ],
-                            ),
+                              );
+                            },
+                            itemCount: cartList.length,
                           ),
-                        );
-                      },
-                      itemCount: cartList.length,
-                    ),
-            ),
+                  ),
             cartList.length == 0
                 ? Container()
                 : Container(
@@ -325,7 +296,7 @@ class CartPageState extends State<CartPage>
                                   )),
                               Row(
                                 children: <Widget>[
-                                  Text("$totalPrice/-",
+                                  Text("Tk. $totalPrice",
                                       style: TextStyle(color: Colors.white)),
                                 ],
                               )
@@ -374,6 +345,44 @@ class CartPageState extends State<CartPage>
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> showMyDialog(int index) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Cart Item'),
+          content: Text('Do you want to delete the item?'),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 10),
+                    child: Text('No')),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                deleteCart(cartList[index]["cart_id"]);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 10),
+                    child: Text('Yes')),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

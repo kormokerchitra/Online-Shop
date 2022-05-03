@@ -1,5 +1,8 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 class Utils {
   int discountAmt = 0;
+  String userInfo = "";
 
   int getProductDiscount(String total, String percent) {
     int discountPercent = int.parse(percent);

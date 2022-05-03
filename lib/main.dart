@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:http/http.dart' as http;
 import 'MainScreens/SplashScreen/splash.dart';
 
 void main() => runApp(MyApp());
@@ -15,8 +17,10 @@ String pageDirect = "";
 String userID = "";
 int selectedPage = 0;
 bool isLoggedin = false;
+List userList = [];
+var userInfo;
 
-String ip = "http://192.168.100.5/";
+String ip = "http://192.168.100.4/";
 
 class MyApp extends StatefulWidget {
   @override
@@ -29,19 +33,22 @@ class _MyAppState extends State<MyApp> {
     // TODO: implement initState
     super.initState();
 
-    getuserID();
+    getuserInfo();
   }
 
-  getuserID() async {
+  getuserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userID = prefs.getString("userId");
-      if (userID != null) {
+      var user = prefs.getString("user_info");
+      print("user - $user");
+      
+      if (user != null) {
+        userInfo = json.decode(user);
         isLoggedin = true;
       }
     });
-    print("userID");
-    print(userID);
+    print("userInfo");
+    print(userInfo);
   }
 
   @override

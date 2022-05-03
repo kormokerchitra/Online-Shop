@@ -29,13 +29,15 @@ class AllCartPageState extends State<AllCartPage>
   @override
   void initState() {
     super.initState();
-    fetchCart();
+    if (userInfo != null) {
+      fetchCart();
+    }
   }
 
   Future<void> fetchCart() async {
     totalPrice = 0.0;
-    final response = await http
-        .post(ip + 'easy_shopping/cart_list.php', body: {"user_id": userID});
+    final response = await http.post(ip + 'easy_shopping/cart_list.php',
+        body: {"user_id": "${userInfo["user_id"]}"});
     if (response.statusCode == 200) {
       print(response.body);
       var cartBody = json.decode(response.body);
@@ -73,7 +75,7 @@ class AllCartPageState extends State<AllCartPage>
                 Container(
                   child: Row(
                     children: <Widget>[
-                      Text("Cart",
+                      Text("Cart List",
                           style: TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold)),
                     ],
@@ -193,57 +195,7 @@ class AllCartPageState extends State<AllCartPage>
                                                       children: <Widget>[
                                                         GestureDetector(
                                                           onTap: () {
-                                                            showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (BuildContext
-                                                                      context) {
-                                                                return Expanded(
-                                                                  child:
-                                                                      AlertDialog(
-                                                                    title: Text(
-                                                                        'Delete Cart Item'),
-                                                                    content: Text(
-                                                                        'Do you want to delete the item?'),
-                                                                    actions: [
-                                                                      GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              const EdgeInsets.all(8.0),
-                                                                          child: Container(
-                                                                              margin: EdgeInsets.only(right: 10, bottom: 10),
-                                                                              child: Text('No')),
-                                                                        ),
-                                                                      ),
-                                                                      GestureDetector(
-                                                                        onTap:
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                          deleteCart(cartList[index]
-                                                                              [
-                                                                              "cart_id"]);
-                                                                        },
-                                                                        child:
-                                                                            Padding(
-                                                                          padding:
-                                                                              const EdgeInsets.all(8.0),
-                                                                          child: Container(
-                                                                              margin: EdgeInsets.only(right: 10, bottom: 10),
-                                                                              child: Text('Yes')),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                );
-                                                              },
-                                                            );
+                                                            showMyDialog(index);
                                                           },
                                                           child: Icon(
                                                             Icons.delete,
@@ -396,6 +348,44 @@ class AllCartPageState extends State<AllCartPage>
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> showMyDialog(int index) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Cart Item'),
+          content: Text('Do you want to delete the item?'),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 10),
+                    child: Text('No')),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                deleteCart(cartList[index]["cart_id"]);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 10),
+                    child: Text('Yes')),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

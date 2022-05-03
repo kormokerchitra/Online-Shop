@@ -30,11 +30,14 @@ class OrderPageState extends State<OrderPage>
   void initState() {
     // TODO: implement initState
     super.initState();
-    fetchOrder();
+    if (userInfo != null) {
+      fetchOrder();
+    }
   }
 
   Future<void> fetchOrder() async {
-    final response = await http.get(ip + 'easy_shopping/order_details.php');
+    final response = await http.post(ip + 'easy_shopping/order_details.php',
+        body: {"user_id": "${userInfo["user_id"]}"});
     if (response.statusCode == 200) {
       print(response.body);
       var corderBody = json.decode(response.body);
@@ -78,12 +81,18 @@ class OrderPageState extends State<OrderPage>
           color: sub_white,
           width: MediaQuery.of(context).size.width,
           ////// <<<<< Order List >>>>> //////
-          child: new ListView.builder(
-            itemBuilder: (BuildContext context, int index) =>
-                ////// <<<<< Order Card >>>>> //////
-                OrderCard(orderList[index]),
-            itemCount: orderList.length,
-          ),
+          child: orderList.length == 0
+              ? Center(
+                  child: Container(
+                    child: Text("No orders available!"),
+                  ),
+                )
+              : new ListView.builder(
+                  itemBuilder: (BuildContext context, int index) =>
+                      ////// <<<<< Order Card >>>>> //////
+                      OrderCard(orderList[index]),
+                  itemCount: orderList.length,
+                ),
         ),
       ),
     );

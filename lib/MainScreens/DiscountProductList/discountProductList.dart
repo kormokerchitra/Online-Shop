@@ -47,7 +47,7 @@ class DiscountProductListState extends State<DiscountProductList>
           }
         }
       });
-      print(count);
+      print("discountCount 1 - $count");
     } else {
       throw Exception('Unable to fetch products from the REST API');
     }

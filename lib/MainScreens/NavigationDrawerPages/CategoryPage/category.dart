@@ -59,7 +59,7 @@ class CategoryPageState extends State<CategoryPage>
                 Container(
                   child: Row(
                     children: <Widget>[
-                      Text("Category",
+                      Text("Category List",
                           style: TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold)),
                     ],

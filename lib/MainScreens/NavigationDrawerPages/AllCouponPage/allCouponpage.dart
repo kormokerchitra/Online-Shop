@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:online_shopping/main.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,11 +22,14 @@ class _AllCouponPageState extends State<AllCouponPage> {
   TextEditingController vStatusController1 = new TextEditingController();
   List couponListActive = [], couponListUsed = [];
   bool isLoading = true;
+  String runningdate = "";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    var now = new DateTime.now();
+    runningdate = new DateFormat("yyyy-MM-dd").format(now);
     fetchCoupon();
   }
 
@@ -40,7 +44,19 @@ class _AllCouponPageState extends State<AllCouponPage> {
       setState(() {
         var couponList = couponBody["voucher_list"];
         for (int i = 0; i < couponList.length; i++) {
-          if (couponList[i]["voucher_status"] == "Available") {
+          String voucherExpDate = couponList[i]["vou_exp_date"];
+          List expArr = voucherExpDate.split("-");
+          String day = expArr[0];
+          int dayInt = int.parse(day);
+          String month = expArr[1];
+          int monthInt = int.parse(month);
+          String year = expArr[2];
+          int yearInt = int.parse(year);
+
+          final now = DateTime.now();
+          final expirationDate = DateTime(yearInt, monthInt, dayInt);
+          final bool isExpired = expirationDate.isBefore(now);
+          if (couponList[i]["voucher_status"] == "1" && !isExpired) {
             couponListActive.add(couponList[i]);
           } else {
             couponListUsed.add(couponList[i]);
@@ -116,7 +132,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Available",
+                          "Active",
                           style: TextStyle(
                               color: isAvailableClicked
                                   ? Colors.white
@@ -149,7 +165,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Used",
+                          "Inactive",
                           style: TextStyle(
                               color: !isAvailableClicked
                                   ? Colors.white
@@ -226,15 +242,15 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                             ),
                                             Column(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
+                                                  CrossAxisAlignment.center,
                                               children: [
-                                                Text(
-                                                  "${couponListActive[index]["voucher_status"]}",
-                                                  style: TextStyle(
-                                                      color: Colors.green,
-                                                      fontWeight:
-                                                          FontWeight.normal),
-                                                ),
+                                                // Text(
+                                                //   "Active",
+                                                //   style: TextStyle(
+                                                //       color: Colors.green,
+                                                //       fontWeight:
+                                                //           FontWeight.normal),
+                                                // ),
                                                 GestureDetector(
                                                   onTap: () {
                                                     Clipboard.setData(ClipboardData(
@@ -324,22 +340,22 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                 ],
                                               ),
                                             ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Container(
-                                                  child: Text(
-                                                    "${couponListUsed[index]["voucher_status"]}",
-                                                    style: TextStyle(
-                                                        color: Colors.redAccent
-                                                            .withOpacity(0.7),
-                                                        fontWeight:
-                                                            FontWeight.normal),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                            // Column(
+                                            //   crossAxisAlignment:
+                                            //       CrossAxisAlignment.end,
+                                            //   children: [
+                                            //     Container(
+                                            //       child: Text(
+                                            //         "Inactive",
+                                            //         style: TextStyle(
+                                            //             color: Colors.redAccent
+                                            //                 .withOpacity(0.7),
+                                            //             fontWeight:
+                                            //                 FontWeight.normal),
+                                            //       ),
+                                            //     ),
+                                            //   ],
+                                            // ),
                                           ],
                                         ),
                                       ),

@@ -28,18 +28,22 @@ class FavouritePageState extends State<FavouritePage>
   @override
   void initState() {
     super.initState();
-    fetchProduct();
+    if (userInfo != null) {
+      fetchFavlist();
+    }
   }
 
-  Future<void> fetchProduct() async {
-    final response = await http.get(ip + 'easy_shopping/favourite_list.php');
+  Future<void> fetchFavlist() async {
+    final response = await http.post(ip + 'easy_shopping/favourite_list.php',
+        body: {"user_id": "${userInfo["user_id"]}"});
     if (response.statusCode == 200) {
       print(response.body);
       var productBody = json.decode(response.body);
       print(productBody["favourite_list"]);
       setState(() {
         for (int i = 0; i < productBody["favourite_list"].length; i++) {
-          if (userID == productBody["favourite_list"][i]["user_id"]) {
+          if ("${userInfo["user_id"]}" ==
+              productBody["favourite_list"][i]["user_id"]) {
             prodList.add(productBody["favourite_list"][i]);
           }
         }
@@ -80,12 +84,18 @@ class FavouritePageState extends State<FavouritePage>
           color: sub_white,
           width: MediaQuery.of(context).size.width,
           ////// <<<<< Favorites List >>>>> //////
-          child: new ListView.builder(
-            itemBuilder: (BuildContext context, int index) =>
-                ////// <<<<< Favorites Card >>>>> //////
-                FavCard(prodList[index]),
-            itemCount: prodList.length,
-          ),
+          child: prodList.length == 0
+              ? Center(
+                  child: Container(
+                    child: Text("No products added to favourite!"),
+                  ),
+                )
+              : new ListView.builder(
+                  itemBuilder: (BuildContext context, int index) =>
+                      ////// <<<<< Favorites Card >>>>> //////
+                      FavCard(prodList[index]),
+                  itemCount: prodList.length,
+                ),
         ),
       ),
     );

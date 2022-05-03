@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui' as prefix0;
 
 import 'package:online_shopping/MainScreens/BottomNavigation/CartPage/cartPage.dart';
@@ -18,6 +19,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:online_shopping/Utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../main.dart';
@@ -35,10 +37,14 @@ class HomePageState extends State<HomePage>
   Animation<double> animation;
   AnimationController controller;
   int currentIndex = selectedPage;
+  String user_name = "";
+  String pro_pic = "";
 
   @override
   void initState() {
     super.initState();
+    print(userID);
+    pro_pic = "${userInfo["pro_pic"]}";
   }
 
   final pageOptions = [
@@ -54,6 +60,43 @@ class HomePageState extends State<HomePage>
     isLoggedin = false;
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => HomePage()));
+  }
+
+  Future<void> showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Logout'),
+          content: Text('Do you want to logout?'),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 10),
+                    child: Text('No')),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                clearLog();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                    margin: EdgeInsets.only(right: 10, bottom: 10),
+                    child: Text('Yes')),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -83,20 +126,34 @@ class HomePageState extends State<HomePage>
                                 ? CrossAxisAlignment.center
                                 : CrossAxisAlignment.start,
                             children: <Widget>[
-                              Container(
-                                //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
-                                padding: EdgeInsets.all(1.0),
-                                child: CircleAvatar(
-                                  radius: 30.0,
-                                  backgroundColor: Colors.transparent,
-                                  backgroundImage:
-                                      AssetImage('assets/user.png'),
-                                ),
-                                decoration: new BoxDecoration(
-                                  color: Colors.grey, // border color
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
+                              pro_pic != ""
+                                  ? Container(
+                                      padding: EdgeInsets.all(1.0),
+                                      child: CircleAvatar(
+                                        radius: 30.0,
+                                        backgroundColor: Colors.transparent,
+                                        backgroundImage:
+                                            NetworkImage(ip + pro_pic),
+                                      ),
+                                      decoration: new BoxDecoration(
+                                        color: Colors.grey, // border color
+                                        shape: BoxShape.circle,
+                                      ),
+                                    )
+                                  : Container(
+                                      //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
+                                      padding: EdgeInsets.all(1.0),
+                                      child: CircleAvatar(
+                                        radius: 30.0,
+                                        backgroundColor: Colors.transparent,
+                                        backgroundImage:
+                                            AssetImage('assets/user.png'),
+                                      ),
+                                      decoration: new BoxDecoration(
+                                        color: Colors.grey, // border color
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                               SizedBox(
                                 width: 10,
                               ),
@@ -109,7 +166,9 @@ class HomePageState extends State<HomePage>
                                         fontSize: 15, color: Colors.black38),
                                   ),
                                   Text(
-                                    !isLoggedin ? "User" : "Chitra",
+                                    !isLoggedin
+                                        ? "User"
+                                        : "${userInfo["full_name"]}",
                                     style: TextStyle(fontSize: 17),
                                   ),
                                   SizedBox(
@@ -367,45 +426,7 @@ class HomePageState extends State<HomePage>
                     : new ListTile(
                         leading: new Icon(Icons.settings_power),
                         title: new Text('Logout'),
-                        onTap: () => {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return Expanded(
-                                child: AlertDialog(
-                                  title: Text('Logout'),
-                                  content: Text('Do you want to logout?'),
-                                  actions: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                            margin: EdgeInsets.only(
-                                                right: 10, bottom: 10),
-                                            child: Text('No')),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        clearLog();
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                            margin: EdgeInsets.only(
-                                                right: 10, bottom: 10),
-                                            child: Text('Yes')),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          )
-                        },
+                        onTap: () => showMyDialog(),
                       ),
               ],
             ),

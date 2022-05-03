@@ -157,17 +157,17 @@ class _AllDiscountCardState extends State<AllDiscountCard> {
                                       ],
                                     ),
                                   ),
-                            Container(
-                              margin: EdgeInsets.only(top: 10),
-                              child: Container(
-                                margin: EdgeInsets.only(left: 3),
-                                child: Text(
-                                  "Expiry Date: ${widget.prod_item["prod_disc_date"]}",
-                                  style:
-                                      TextStyle(color: subheader, fontSize: 11),
-                                ),
-                              ),
-                            ),
+                            //Container(
+                              //margin: EdgeInsets.only(top: 10),
+                              //child: Container(
+                                //margin: EdgeInsets.only(left: 3),
+                                //child: Text(
+                                  //"Expiry Date: ${widget.prod_item["prod_disc_date"]}",
+                                  //style:
+                                      //TextStyle(color: subheader, fontSize: 11),
+                                //),
+                              //),
+                            //),
                           ],
                         ),
                       ),

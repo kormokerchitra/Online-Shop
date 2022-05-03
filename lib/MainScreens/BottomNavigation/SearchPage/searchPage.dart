@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'dart:ui' as prefix0;
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:online_shopping/Cards/AllProductCard/allProductCard.dart';
 import 'dart:async';
 import '../../../main.dart';
-
 
 class SearchPage extends StatefulWidget {
   @override
@@ -19,10 +20,38 @@ class SearchPageState extends State<SearchPage>
   AnimationController controller;
   String result = '';
   TextEditingController searchController = TextEditingController();
+  var productBody;
+  var prodList = [];
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> fetchProduct(String name) async {
+    final response = await http.post(ip + 'easy_shopping/product_search.php',
+        body: {"product_name": "$name"});
+    print(name);
+    if (response.statusCode == 200) {
+      print(response.body);
+      productBody = json.decode(response.body);
+      print(productBody["product_list"]);
+      setState(() {
+        prodList = [];
+        int cc = productBody["product_list"].length;
+        print("cc");
+        print(cc);
+        for (int i = 0; i < cc; i++) {
+          prodList.add(productBody["product_list"][i]);
+        }
+        isLoading = false;
+      });
+      print("prodList.length");
+      print(prodList.length);
+    } else {
+      throw Exception('Unable to fetch products from the REST API');
+    }
   }
 
   @override
@@ -30,7 +59,6 @@ class SearchPageState extends State<SearchPage>
     return Scaffold(
       body: Container(
         color: sub_white,
-        //height: MediaQuery.of(context).size.height,
         child: Container(
           width: MediaQuery.of(context).size.width,
           margin: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 1),
@@ -48,7 +76,8 @@ class SearchPageState extends State<SearchPage>
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
                     color: Colors.white,
                     border: Border.all(width: 0.5, color: Colors.grey)),
-                child: TextFormField(
+                child: TextField(
+                  controller: searchController,
                   autofocus: false,
                   decoration: InputDecoration(
                     icon: const Icon(
@@ -56,23 +85,58 @@ class SearchPageState extends State<SearchPage>
                       color: Colors.black38,
                     ),
                     hintText: 'Search here...',
-                    //labelText: 'Enter E-mail',
                     contentPadding: EdgeInsets.fromLTRB(0.0, 10.0, 20.0, 10.0),
                     border: InputBorder.none,
                   ),
-                  validator: (val) => val.isEmpty ? 'Field is empty' : null,
-                  onSaved: (val) => result = val,
-                  //validator: _validateEmail,
+                  onChanged: (val) {
+                    if (val != "") {
+                      setState(() {
+                        isLoading = true;
+                        result = val;
+                      });
+                      fetchProduct(result);
+                    }
+                  },
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: 10,
               ),
-              Text(
-                "Search Result",
-                textAlign: TextAlign.justify,
-                style: TextStyle(fontSize: 15, color: Colors.black45),
-              ),
+              prodList.length == 0
+                  ? Container()
+                  : Container(
+                      width: MediaQuery.of(context).size.width,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        "${prodList.length} items found",
+                        style: TextStyle(color: mainheader),
+                      ),
+                    ),
+              prodList.length == 0
+                  ? Container()
+                  : SizedBox(
+                      height: 10,
+                    ),
+              isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : prodList.length == 0
+                      ? Center(
+                          child: Container(
+                            child: Text("No items found!"),
+                          ),
+                        )
+                      : Flexible(
+                          child: SingleChildScrollView(
+                            child: Container(
+                              child: Column(
+                                  children:
+                                      List.generate(prodList.length, (index) {
+                                return AllProductCard(
+                                    prod_item: prodList[index]);
+                              })),
+                            ),
+                          ),
+                        )
             ],
           ),
         ),
