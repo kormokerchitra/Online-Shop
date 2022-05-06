@@ -25,11 +25,19 @@ class _EditProfileFormState extends State<EditProfileForm> {
   int cardStatus = 0;
   File fileImage;
   String pro_pic = "";
+  String base64Image = "";
+  bool imageLoader = false, loader = false, passLoader = false;
 
   @override
   void initState() {
     super.initState();
     pro_pic = "${userInfo["pro_pic"]}";
+    if (pro_pic != "") {
+      setState(() {
+        imageLoader = true;
+      });
+      convertURLToBase64(ip + pro_pic);
+    }
     _fullNameController.text = "${userInfo["full_name"]}";
     _userNameController.text = "${userInfo["username"]}";
     _addressController.text = "${userInfo["address"]}";
@@ -110,20 +118,23 @@ class _EditProfileFormState extends State<EditProfileForm> {
                                       ),
                                     )
                                   : pro_pic != ""
-                                      ? Container(
-                                          padding: EdgeInsets.all(1.0),
-                                          child: CircleAvatar(
-                                            radius: 50.0,
-                                            backgroundColor:
-                                                Colors.transparent,
-                                            backgroundImage:
-                                                NetworkImage(ip + pro_pic),
-                                          ),
-                                          decoration: new BoxDecoration(
-                                            color: Colors.grey, // border color
-                                            shape: BoxShape.circle,
-                                          ),
-                                        )
+                                      ? imageLoader
+                                          ? CircularProgressIndicator()
+                                          : Container(
+                                              padding: EdgeInsets.all(1.0),
+                                              child: CircleAvatar(
+                                                radius: 50.0,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                backgroundImage:
+                                                    NetworkImage(ip + pro_pic),
+                                              ),
+                                              decoration: new BoxDecoration(
+                                                color:
+                                                    Colors.grey, // border color
+                                                shape: BoxShape.circle,
+                                              ),
+                                            )
                                       : Container(
                                           padding: EdgeInsets.all(1.0),
                                           child: CircleAvatar(
@@ -484,7 +495,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        updateProfile();
+                        !loader ? updateProfile() : null;
                       },
                       child: Container(
                           width: MediaQuery.of(context).size.width,
@@ -494,14 +505,20 @@ class _EditProfileFormState extends State<EditProfileForm> {
                           decoration: BoxDecoration(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(5.0)),
-                              color: mainheader,
+                              color: loader ? Colors.grey : mainheader,
                               border:
                                   Border.all(width: 0.2, color: Colors.grey)),
-                          child: Text(
-                            "Update",
-                            style: TextStyle(color: Colors.white),
-                            textAlign: TextAlign.center,
-                          )),
+                          child: loader
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    color: white,
+                                  ),
+                                )
+                              : Text(
+                                  "Update",
+                                  style: TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                )),
                     ),
                     Container(
                       padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
@@ -690,10 +707,29 @@ class _EditProfileFormState extends State<EditProfileForm> {
     );
   }
 
+  convertURLToBase64(String url) async {
+    http.Response response = await http.get(Uri.parse(url));
+    List<int> imageBytes = response.bodyBytes;
+    base64Image = base64Encode(imageBytes);
+    setState(() {
+      imageLoader = false;
+    });
+    print("base64Image download");
+    print(base64Image);
+  }
+
   Future<void> updateProfile() async {
-    List<int> imageBytes = fileImage.readAsBytesSync();
-    print(imageBytes);
-    String base64Image = base64Encode(imageBytes);
+    setState(() {
+      loader = true;
+    });
+    if (fileImage != null) {
+      List<int> imageBytes = fileImage.readAsBytesSync();
+      print(imageBytes);
+      base64Image = base64Encode(imageBytes);
+      print("base64Image upload");
+      print(base64Image);
+    }
+
     print(base64Image);
     final response = await http.post(ip + 'easy_shopping/user_edit.php', body: {
       "user_id": "${userInfo["user_id"]}",
@@ -713,6 +749,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
         storeToLocal(json.encode(userInfo));
         selectedPage = 0;
         isLoggedin = true;
+        loader = false;
         userID = "${userInfo["user_id"]}";
         Navigator.pop(context);
         Navigator.push(

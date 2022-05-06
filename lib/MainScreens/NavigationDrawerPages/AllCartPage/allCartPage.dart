@@ -168,19 +168,18 @@ class AllCartPageState extends State<AllCartPage>
                                                 children: <Widget>[
                                                   Row(
                                                     children: <Widget>[
-                                                      Icon(
-                                                        Icons.attach_money,
-                                                        color: Colors.black54,
-                                                        size: 17,
-                                                      ),
+                                                      //Icon(
+                                                        //Icons.attach_money,
+                                                        //color: Colors.black54,
+                                                        //size: 17,
+                                                      //),
                                                       SizedBox(
                                                         width: 3,
                                                       ),
                                                       Text(
                                                         discountAmt == 0
-                                                            ? cartList[index][
-                                                                "product_price"]
-                                                            : "$discountAmt",
+                                                            ? cartList[index]["product_price"]
+                                                            : "Tk. $discountAmt",
                                                         style: TextStyle(
                                                           fontSize: 14,
                                                           color: Colors.black54,
@@ -299,7 +298,7 @@ class AllCartPageState extends State<AllCartPage>
                                   )),
                               Row(
                                 children: <Widget>[
-                                  Text("$totalPrice/-",
+                                  Text("Tk. ${totalPrice.toStringAsFixed(2)}",
                                       style: TextStyle(color: Colors.white)),
                                 ],
                               )

@@ -14,6 +14,14 @@ class OrderCard extends StatefulWidget {
 }
 
 class _OrderCardState extends State<OrderCard> {
+  double amt = 0.0;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    amt = double.parse(widget.order_item["total_payable"]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -93,7 +101,7 @@ class _OrderCardState extends State<OrderCard> {
                                     child: Row(
                                       children: <Widget>[
                                         Text(
-                                          "Total price: Tk. ${widget.order_item["total_payable"]}",
+                                          "Total price: Tk. ${amt.toStringAsFixed(2)}",
                                           style: TextStyle(
                                               fontSize: 15, color: mainheader),
                                         ),

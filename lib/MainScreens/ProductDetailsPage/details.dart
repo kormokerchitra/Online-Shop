@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:online_shopping/MainScreens/CheckoutPage/checkout.dart';
 import 'package:flutter/cupertino.dart';
@@ -172,6 +173,9 @@ class DetailsPageState extends State<DetailsPage>
       "date": formattedDate,
     });
     if (response.statusCode == 200) {
+      selectedPage = 0;
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
       showConfirmation("Review added successfully!");
     } else {
       throw Exception('Unable to fetch reviews from the REST API');
@@ -354,8 +358,13 @@ class DetailsPageState extends State<DetailsPage>
                               ? Image.asset(
                                   'assets/product_back.jpg',
                                 )
-                              : Image.asset(
-                                  'assets/product_back.jpg',
+                              : CachedNetworkImage(
+                                  imageUrl:
+                                      "${ip + widget.product_info["product_img"]}",
+                                  placeholder: (context, url) =>
+                                      CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
                                 ),
                           // child: CarouselSlider(
                           //   //height: 400.0,
@@ -1551,7 +1560,7 @@ class DetailsPageState extends State<DetailsPage>
                   child: Row(
                 children: <Widget>[
                   Text(
-                    "$tk/-",
+                    "${tk.toStringAsFixed(2)}/-",
                     textAlign: TextAlign.start,
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),

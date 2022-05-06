@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +16,7 @@ class RecommendedCard extends StatefulWidget {
 
 class _RecommendedCardState extends State<RecommendedCard> {
   int discountPercent = 0, discountAmt = 0;
+  String rating = "0.0";
 
   @override
   void initState() {
@@ -22,6 +24,9 @@ class _RecommendedCardState extends State<RecommendedCard> {
     super.initState();
     discountAmt = Utils().getProductDiscount(
         widget.prod_item["product_price"], widget.prod_item["prod_discount"]);
+
+    double proRating = double.parse(widget.prod_item["prod_rating"]);
+    rating = "${proRating.toStringAsFixed(2)}";
   }
 
   @override
@@ -53,7 +58,14 @@ class _RecommendedCardState extends State<RecommendedCard> {
                     child: Center(
                       child: widget.prod_item["product_img"] == ""
                           ? Image.asset('assets/product_back.jpg')
-                          : Image.asset('assets/product_back.jpg'),
+                          : CachedNetworkImage(
+                              imageUrl:
+                                  "${ip + widget.prod_item["product_img"]}",
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                            ),
                     ),
                   )),
               SizedBox(
@@ -78,10 +90,10 @@ class _RecommendedCardState extends State<RecommendedCard> {
                       child: Row(
                         children: <Widget>[
                           //Icon(
-                            //Icons.attach_money,
-                            //color:
-                                //discountAmt == 0 ? Colors.black87 : Colors.grey,
-                            //size: discountAmt == 0 ? 18 : 14,
+                          //Icons.attach_money,
+                          //color:
+                          //discountAmt == 0 ? Colors.black87 : Colors.grey,
+                          //size: discountAmt == 0 ? 18 : 14,
                           //),
                           Text(
                             "Tk. ${widget.prod_item["product_price"]}",
@@ -112,9 +124,9 @@ class _RecommendedCardState extends State<RecommendedCard> {
                             child: Row(
                               children: <Widget>[
                                 //Icon(
-                                  //Icons.attach_money,
-                                  //color: Colors.black87,
-                                  //size: 16,
+                                //Icons.attach_money,
+                                //color: Colors.black87,
+                                //size: 16,
                                 //),
                                 Row(
                                   children: [
@@ -151,7 +163,7 @@ class _RecommendedCardState extends State<RecommendedCard> {
                     Container(
                       margin: EdgeInsets.only(left: 3),
                       child: Text(
-                        "${widget.prod_item["prod_rating"]}",
+                        "$rating",
                         style: TextStyle(color: Colors.grey),
                       ),
                     )

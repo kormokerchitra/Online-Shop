@@ -32,6 +32,9 @@ dependencies:
   intl:
   image_picker: #^0.6.7+17
   shared_preferences:
+  path_provider:
+  path:
+  cached_network_image:
 
 dev_dependencies:
   flutter_test:

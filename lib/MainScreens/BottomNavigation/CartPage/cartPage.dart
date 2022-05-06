@@ -296,7 +296,7 @@ class CartPageState extends State<CartPage>
                                   )),
                               Row(
                                 children: <Widget>[
-                                  Text("Tk. $totalPrice",
+                                  Text("Tk. ${totalPrice.toStringAsFixed(2)}",
                                       style: TextStyle(color: Colors.white)),
                                 ],
                               )

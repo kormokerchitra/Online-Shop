@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping/MainScreens/ProductDetailsPage/details.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +17,7 @@ class AllProductCard extends StatefulWidget {
 
 class _AllProductCardState extends State<AllProductCard> {
   int discountPercent = 0, discountAmt = 0;
+  String rating = "0.0";
 
   @override
   void initState() {
@@ -23,6 +25,9 @@ class _AllProductCardState extends State<AllProductCard> {
     super.initState();
     discountAmt = Utils().getProductDiscount(
         widget.prod_item["product_price"], widget.prod_item["prod_discount"]);
+
+    double proRating = double.parse(widget.prod_item["prod_rating"]);
+    rating = "${proRating.toStringAsFixed(2)}";
   }
 
   @override
@@ -56,11 +61,19 @@ class _AllProductCardState extends State<AllProductCard> {
                   child: Row(
                     children: <Widget>[
                       Container(
-                          margin: EdgeInsets.only(right: 10, left: 0),
-                          height: 90,
-                          child: widget.prod_item["product_img"] == ""
-                              ? Image.asset('assets/product_back.jpg')
-                              : Image.asset('assets/product_back.jpg')),
+                        margin: EdgeInsets.only(right: 5, left: 0),
+                        height: 90,
+                        child: widget.prod_item["product_img"] == ""
+                            ? Image.asset('assets/product_back.jpg')
+                            : CachedNetworkImage(
+                                imageUrl:
+                                    "${ip + widget.prod_item["product_img"]}",
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
+                              ),
+                      ),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +83,7 @@ class _AllProductCardState extends State<AllProductCard> {
                               //"${prodList[index]["product_name"]}",
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                  fontSize: 17, color: Colors.black54),
+                                  fontSize: 16, color: Colors.black54),
                               textAlign: TextAlign.start,
                             ),
                             Container(
@@ -85,7 +98,7 @@ class _AllProductCardState extends State<AllProductCard> {
                                   Container(
                                     margin: EdgeInsets.only(left: 3),
                                     child: Text(
-                                      "${widget.prod_item["prod_rating"]}",
+                                      "$rating",
                                       style: TextStyle(color: Colors.grey),
                                     ),
                                   )
