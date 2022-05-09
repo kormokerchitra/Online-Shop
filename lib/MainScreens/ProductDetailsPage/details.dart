@@ -628,12 +628,15 @@ class DetailsPageState extends State<DetailsPage>
                                     "Product dimension",
                                     style: TextStyle(color: Colors.grey),
                                   )),
-                                  Container(
-                                      child: Text(
-                                    widget.product_info["prod_dimension"],
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Container(
+                                        child: Text(
+                                      widget.product_info["prod_dimension"],
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                  )
                                 ],
                               ),
                             ),
@@ -653,12 +656,15 @@ class DetailsPageState extends State<DetailsPage>
                                     "Shipping Weight",
                                     style: TextStyle(color: Colors.grey),
                                   )),
-                                  Container(
-                                      child: Text(
-                                    widget.product_info["shipping_weight"],
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Container(
+                                        child: Text(
+                                      widget.product_info["shipping_weight"],
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                  )
                                 ],
                               ),
                             ),
@@ -678,12 +684,15 @@ class DetailsPageState extends State<DetailsPage>
                                     "Manufacturer",
                                     style: TextStyle(color: Colors.grey),
                                   )),
-                                  Container(
-                                      child: Text(
-                                    widget.product_info["manuf_name"],
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Container(
+                                        child: Text(
+                                      widget.product_info["manuf_name"],
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                  )
                                 ],
                               ),
                             ),
@@ -703,12 +712,15 @@ class DetailsPageState extends State<DetailsPage>
                                     "SIN",
                                     style: TextStyle(color: Colors.grey),
                                   )),
-                                  Container(
-                                      child: Text(
-                                    widget.product_info["prod_serial_num"],
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Container(
+                                        child: Text(
+                                      widget.product_info["prod_serial_num"],
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                  )
                                 ],
                               ),
                             ),
@@ -1179,6 +1191,9 @@ class DetailsPageState extends State<DetailsPage>
                                     child: Column(
                                       children: List.generate(reviewList.length,
                                           (index) {
+                                        String pro_pic =
+                                            reviewList[index]["pro_pic"];
+
                                         return reviewList[index]["prod_id"] ==
                                                 widget.product_info["prod_id"]
                                             ? Container(
@@ -1199,28 +1214,67 @@ class DetailsPageState extends State<DetailsPage>
                                                   child: Center(
                                                     child: Row(
                                                       children: <Widget>[
-                                                        Container(
-                                                          //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  1.0),
-                                                          child: CircleAvatar(
-                                                            radius: 25.0,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            backgroundImage:
-                                                                AssetImage(
-                                                                    'assets/user.png'),
-                                                          ),
-                                                          decoration:
-                                                              new BoxDecoration(
-                                                            color: Colors
-                                                                .grey, // border color
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                        ),
+                                                        pro_pic != ""
+                                                            ? ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            25),
+                                                                child:
+                                                                    Container(
+                                                                  //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .all(
+                                                                              1.0),
+                                                                  height: 50,
+                                                                  width: 50,
+                                                                  child:
+                                                                      CachedNetworkImage(
+                                                                    imageUrl:
+                                                                        "${ip + pro_pic}",
+                                                                    placeholder:
+                                                                        (context,
+                                                                                url) =>
+                                                                            CircularProgressIndicator(),
+                                                                    errorWidget: (context,
+                                                                            url,
+                                                                            error) =>
+                                                                        Icon(Icons
+                                                                            .error),
+                                                                  ),
+                                                                  decoration:
+                                                                      new BoxDecoration(
+                                                                          color: Colors
+                                                                              .grey, // border color
+                                                                          shape:
+                                                                              BoxShape.circle),
+                                                                ),
+                                                              )
+                                                            : Container(
+                                                                //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .all(
+                                                                            1.0),
+                                                                child:
+                                                                    CircleAvatar(
+                                                                  radius: 25.0,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                  backgroundImage:
+                                                                      AssetImage(
+                                                                          'assets/user.png'),
+                                                                ),
+                                                                decoration:
+                                                                    new BoxDecoration(
+                                                                  color: Colors
+                                                                      .grey, // border color
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                ),
+                                                              ),
                                                         SizedBox(
                                                           width: 10,
                                                         ),
@@ -1560,7 +1614,7 @@ class DetailsPageState extends State<DetailsPage>
                   child: Row(
                 children: <Widget>[
                   Text(
-                    "${tk.toStringAsFixed(2)}/-",
+                    "Tk. ${tk.toStringAsFixed(2)}",
                     textAlign: TextAlign.start,
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),

@@ -61,8 +61,9 @@ class _AllProductCardState extends State<AllProductCard> {
                   child: Row(
                     children: <Widget>[
                       Container(
-                        margin: EdgeInsets.only(right: 5, left: 0),
+                        margin: EdgeInsets.only(right: 10, left: 0),
                         height: 90,
+                        width: 80,
                         child: widget.prod_item["product_img"] == ""
                             ? Image.asset('assets/product_back.jpg')
                             : CachedNetworkImage(
