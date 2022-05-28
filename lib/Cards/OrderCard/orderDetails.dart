@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:online_shopping/Utils/utils.dart';
 import '../../main.dart';
 
 class OrderDetailsPage extends StatefulWidget {
@@ -32,10 +35,11 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
     "Delivered",
     "Cancelled"
   ];
+  List productList = [];
   double totalPrice = 0.0,
-      discTotal = 0.0, 
-      subTotal = 0.0, 
-      couponPrice = 0.0, 
+      discTotal = 0.0,
+      subTotal = 0.0,
+      couponPrice = 0.0,
       shippingCost = 0.0,
       amt = 0.0;
 
@@ -54,6 +58,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
     couponPrice = double.parse(widget.orderDetails["coupon_discount"]);
     shippingCost = double.parse(widget.orderDetails["shipping_cost"]);
     amt = double.parse(widget.orderDetails["total_payable"]);
+
+    fetchOrderProduct();
   }
 
   void _getDate() {
@@ -100,6 +106,25 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
     setState(() {
       _rating = rating;
     });
+  }
+
+  Future<void> fetchOrderProduct() async {
+    final response = await http
+        .post(ip + 'easy_shopping/order_product_by_id.php', body: {
+      "order_id": widget.orderDetails["order_id"],
+      "user_id": "${userInfo["user_id"]}"
+    });
+    if (response.statusCode == 200) {
+      print(response.body);
+      var reviewBody = json.decode(response.body);
+      print(reviewBody["list"]);
+      setState(() {
+        productList = reviewBody["list"];
+      });
+      print(productList.length);
+    } else {
+      throw Exception('Unable to fetch reviews from the REST API');
+    }
   }
 
   @override
@@ -349,226 +374,78 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                         ),
                       ],
                     )),
-                // Container(
-                //   width: MediaQuery.of(context).size.width,
-                //   margin:
-                //       EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
-                //   padding: EdgeInsets.all(15),
-                //   decoration: BoxDecoration(
-                //       borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                //       color: Colors.white,
-                //       border: Border.all(width: 0.2, color: Colors.grey)),
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: <Widget>[
-                //       Text(
-                //         "Product List",
-                //         style: TextStyle(fontSize: 17, color: Colors.black),
-                //         textAlign: TextAlign.center,
-                //       ),
-                //       SizedBox(
-                //         height: 10,
-                //       ),
-                //       Container(
-                //         padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
-                //         width: MediaQuery.of(context).size.width,
-                //         child: Column(
-                //           children: <Widget>[
-                //             Container(
-                //               margin: EdgeInsets.only(top: 15, bottom: 5),
-                //               child: Row(
-                //                 mainAxisAlignment:
-                //                     MainAxisAlignment.spaceBetween,
-                //                 children: <Widget>[
-                //                   Container(
-                //                       //color: Colors.grey[200],
-                //                       //padding: EdgeInsets.all(20),
-                //                       child: Text(
-                //                     "Product 1",
-                //                     style: TextStyle(color: Colors.grey),
-                //                   )),
-                //                   Container(
-                //                       child: Row(
-                //                     children: <Widget>[
-                //                       Text(
-                //                         "1",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(color: Colors.black54),
-                //                       ),
-                //                       Container(
-                //                         margin:
-                //                             EdgeInsets.only(left: 3, right: 3),
-                //                         child: Icon(Icons.close,
-                //                             size: 15, color: Colors.black54),
-                //                       ),
-                //                       Icon(Icons.attach_money,
-                //                           size: 15, color: Colors.black54),
-                //                       Text(
-                //                         "50.10",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(color: Colors.black54),
-                //                       ),
-                //                     ],
-                //                   ))
-                //                 ],
-                //               ),
-                //             ),
-                //             Container(
-                //               margin: EdgeInsets.only(top: 15, bottom: 5),
-                //               child: Row(
-                //                 mainAxisAlignment:
-                //                     MainAxisAlignment.spaceBetween,
-                //                 children: <Widget>[
-                //                   Container(
-                //                       //color: Colors.grey[200],
-                //                       //padding: EdgeInsets.all(20),
-                //                       child: Text(
-                //                     "Product 2",
-                //                     style: TextStyle(color: Colors.grey),
-                //                   )),
-                //                   Container(
-                //                       child: Row(
-                //                     children: <Widget>[
-                //                       Text(
-                //                         "2",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(color: Colors.black54),
-                //                       ),
-                //                       Container(
-                //                         margin:
-                //                             EdgeInsets.only(left: 3, right: 3),
-                //                         child: Icon(Icons.close,
-                //                             size: 15, color: Colors.black54),
-                //                       ),
-                //                       Icon(Icons.attach_money,
-                //                           size: 15, color: Colors.black54),
-                //                       Text(
-                //                         "12.50",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(color: Colors.black54),
-                //                       ),
-                //                     ],
-                //                   ))
-                //                 ],
-                //               ),
-                //             ),
-                //             Container(
-                //               margin: EdgeInsets.only(top: 15, bottom: 5),
-                //               child: Row(
-                //                 mainAxisAlignment:
-                //                     MainAxisAlignment.spaceBetween,
-                //                 children: <Widget>[
-                //                   Container(
-                //                       //color: Colors.grey[200],
-                //                       //padding: EdgeInsets.all(20),
-                //                       child: Text(
-                //                     "Product 3",
-                //                     style: TextStyle(color: Colors.grey),
-                //                   )),
-                //                   Container(
-                //                       child: Row(
-                //                     children: <Widget>[
-                //                       Text(
-                //                         "1",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(color: Colors.black54),
-                //                       ),
-                //                       Container(
-                //                         margin:
-                //                             EdgeInsets.only(left: 3, right: 3),
-                //                         child: Icon(Icons.close,
-                //                             size: 15, color: Colors.black54),
-                //                       ),
-                //                       Icon(Icons.attach_money,
-                //                           size: 15, color: Colors.black54),
-                //                       Text(
-                //                         "75.15",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(color: Colors.black54),
-                //                       ),
-                //                     ],
-                //                   ))
-                //                 ],
-                //               ),
-                //             ),
-                //             Container(
-                //               margin: EdgeInsets.only(top: 15, bottom: 5),
-                //               child: Row(
-                //                 mainAxisAlignment:
-                //                     MainAxisAlignment.spaceBetween,
-                //                 children: <Widget>[
-                //                   Container(
-                //                       //color: Colors.grey[200],
-                //                       //padding: EdgeInsets.all(20),
-                //                       child: Text(
-                //                     "Product 4",
-                //                     style: TextStyle(color: Colors.grey),
-                //                   )),
-                //                   Container(
-                //                       child: Row(
-                //                     children: <Widget>[
-                //                       Text(
-                //                         "4",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(color: Colors.black54),
-                //                       ),
-                //                       Container(
-                //                         margin:
-                //                             EdgeInsets.only(left: 3, right: 3),
-                //                         child: Icon(Icons.close,
-                //                             size: 15, color: Colors.black54),
-                //                       ),
-                //                       Icon(Icons.attach_money,
-                //                           size: 15, color: Colors.black54),
-                //                       Text(
-                //                         "25.00",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(color: Colors.black54),
-                //                       ),
-                //                     ],
-                //                   ))
-                //                 ],
-                //               ),
-                //             ),
-                //             Divider(
-                //               color: Colors.grey,
-                //             ),
-                //             Container(
-                //               margin: EdgeInsets.only(top: 5, bottom: 5),
-                //               child: Row(
-                //                 mainAxisAlignment:
-                //                     MainAxisAlignment.spaceBetween,
-                //                 children: <Widget>[
-                //                   Container(
-                //                       //color: Colors.grey[200],
-                //                       //padding: EdgeInsets.all(20),
-                //                       child: Text(
-                //                     "Total Price",
-                //                     style: TextStyle(color: Colors.grey),
-                //                   )),
-                //                   Container(
-                //                       child: Row(
-                //                     children: <Widget>[
-                //                       Icon(Icons.attach_money,
-                //                           size: 15, color: Colors.black),
-                //                       Text(
-                //                         "250.25",
-                //                         textAlign: TextAlign.start,
-                //                         style: TextStyle(
-                //                             color: Colors.black,
-                //                             fontWeight: FontWeight.bold),
-                //                       ),
-                //                     ],
-                //                   ))
-                //                 ],
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //       )
-                //     ],
-                //   ),
-                // ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin:
+                      EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      color: Colors.white,
+                      border: Border.all(width: 0.2, color: Colors.grey)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "Product List",
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          children: List.generate(productList.length, (index) {
+                            int discountAmt = Utils().getProductDiscount(
+                                productList[index]["product_price"],
+                                productList[index]["prod_discount"]);
+                            return Container(
+                              margin: EdgeInsets.only(top: 15, bottom: 5),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Container(
+                                      //color: Colors.grey[200],
+                                      //padding: EdgeInsets.all(20),
+                                      child: Text(
+                                    "${productList[index]["product_name"]}",
+                                    style: TextStyle(color: Colors.grey),
+                                  )),
+                                  Container(
+                                      child: Row(
+                                    children: <Widget>[
+                                      Text(
+                                        "${productList[index]["product_count"]}",
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(color: Colors.black54),
+                                      ),
+                                      Text(
+                                        " * ",
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(color: Colors.black54),
+                                      ),
+                                      Text(
+                                        discountAmt == 0
+                                            ? "${productList[index]["product_price"]}"
+                                            : "$discountAmt",
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(color: Colors.black54),
+                                      ),
+                                    ],
+                                  ))
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 Container(
                   width: MediaQuery.of(context).size.width,
                   margin:
@@ -655,7 +532,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                       child: Row(
                                     children: <Widget>[
                                       //Icon(Icons.attach_money,
-                                          //size: 15, color: Colors.black54),
+                                      //size: 15, color: Colors.black54),
                                       Text(
                                         "Tk. ${totalPrice.toStringAsFixed(2)}",
                                         //"Tk. " + widget.orderDetails["total_price"],
@@ -686,7 +563,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
                                       //Icon(Icons.attach_money,
-                                          //size: 15, color: mainheader),
+                                      //size: 15, color: mainheader),
                                       Text(
                                         "Tk. ${discTotal.toStringAsFixed(2)}",
                                         //"Tk. " + widget.orderDetails["prod_discount"],
@@ -716,7 +593,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                       child: Row(
                                     children: <Widget>[
                                       //Icon(Icons.attach_money,
-                                          //size: 15, color: Colors.black54),
+                                      //size: 15, color: Colors.black54),
                                       Text(
                                         "Tk. ${subTotal.toStringAsFixed(2)}",
                                         //"Tk. " + widget.orderDetails["sub_total"],
@@ -747,7 +624,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
                                       //Icon(Icons.attach_money,
-                                          //size: 15, color: mainheader),
+                                      //size: 15, color: mainheader),
                                       Text(
                                         "Tk. ${couponPrice.toStringAsFixed(2)}",
                                         //"Tk. " + widget.orderDetails["coupon_discount"],
@@ -776,7 +653,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                       child: Row(
                                     children: <Widget>[
                                       //Icon(Icons.attach_money,
-                                          //size: 15, color: Colors.black54),
+                                      //size: 15, color: Colors.black54),
                                       Text(
                                         "Tk. ${shippingCost.toStringAsFixed(2)}",
                                         //"Tk. " + widget.orderDetails["shipping_cost"],
@@ -808,7 +685,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                       child: Row(
                                     children: <Widget>[
                                       //Icon(Icons.attach_money,
-                                          //size: 15, color: Colors.black),
+                                      //size: 15, color: Colors.black),
                                       Text(
                                         //"Tk. " + widget.orderDetails["total_payable"],
                                         //"Tk. ${widget.product_info["total_payable"]}",

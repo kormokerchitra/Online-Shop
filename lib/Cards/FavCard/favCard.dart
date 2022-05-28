@@ -15,8 +15,8 @@ class FavCard extends StatefulWidget {
 }
 
 class _FavCardState extends State<FavCard> {
-  String rating = "0.0";
   int discountPercent = 0, discountAmt = 0;
+  String rating = "0.0";
 
   @override
   void initState() {
@@ -101,20 +101,30 @@ class _FavCardState extends State<FavCard> {
                                   //color: Colors.black87,
                                   //size: 18,
                                   //),
+                                  discountAmt == 0
+                                      ? Container()
+                                      : Container(
+                                          margin: EdgeInsets.only(right: 5),
+                                          child: Text(
+                                            "Tk. $discountAmt",
+                                            style: TextStyle(
+                                                fontSize:
+                                                    discountAmt == 0 ? 16 : 13,
+                                                color: discountAmt == 0
+                                                    ? Colors.black87
+                                                    : Colors.grey,
+                                                decoration: discountAmt == 0
+                                                    ? TextDecoration.none
+                                                    : TextDecoration
+                                                        .lineThrough),
+                                          ),
+                                        ),
                                   Text(
                                     "Tk. ${widget.fav_item["product_price"]}",
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.black87,
                                     ),
-                                    //style: TextStyle(
-                                    //fontSize: discountAmt == 0 ? 13 : 12,
-                                    //color: discountAmt == 0
-                                    //? Colors.black87
-                                    //: Colors.grey,
-                                    //decoration: discountAmt == 0
-                                    //? TextDecoration.none
-                                    //: TextDecoration.lineThrough),
                                   ),
                                 ],
                               ),
@@ -132,7 +142,8 @@ class _FavCardState extends State<FavCard> {
                         //? Container()
                         //: Container(
                         //child: Row(
-                        //mainAxisAlignment: MainAxisAlignment.center,
+                        //mainAxisAlignment:
+                        //MainAxisAlignment.start,
                         //children: <Widget>[
                         //Container(
                         //margin: EdgeInsets.only(top: 0),
@@ -147,13 +158,17 @@ class _FavCardState extends State<FavCard> {
                         //children: [
                         //Text(
                         //"Tk. $discountAmt",
+                        //"${prodList[index]["product_price"]}/-",
                         //style: TextStyle(
-                        //fontSize: 13, color: Colors.black87),
+                        //fontSize: 16,
+                        //color: Colors.black87),
                         //),
                         //Text(
                         //" (${widget.fav_item["prod_discount"]}%)",
+                        //"${prodList[index]["product_price"]}/-",
                         //style: TextStyle(
-                        //fontSize: 10, color: Colors.black87),
+                        //fontSize: 13,
+                        //color: Colors.black87),
                         //),
                         //],
                         //),

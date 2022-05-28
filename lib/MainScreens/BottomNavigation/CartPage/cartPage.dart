@@ -24,7 +24,6 @@ class CartPageState extends State<CartPage>
   Animation<double> animation;
   AnimationController controller;
   var cartList = [];
-  double totalPrice = 0.0;
 
   @override
   void initState() {
@@ -49,8 +48,9 @@ class CartPageState extends State<CartPage>
           int qty = int.parse(cartList[i]["product_qnt"]);
           double price = double.parse(cartList[i]["product_price"]);
           double total = qty * price;
-          int discountAmt = Utils().getProductDiscount(
-              cartList[i]["product_price"], cartList[i]["prod_discount"]);
+          String discStr = "$total";
+          int discountAmt =
+              Utils().getProductDiscount(discStr, cartList[i]["prod_discount"]);
           totalPrice += (discountAmt == 0 ? total : discountAmt);
         }
         print("totalPrice");
@@ -306,11 +306,7 @@ class CartPageState extends State<CartPage>
                         GestureDetector(
                           onTap: () {
                             isLoggedin
-                                ? Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => CheckoutPage()),
-                                  )
+                                ? goToCheckout()
                                 : Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -346,6 +342,21 @@ class CartPageState extends State<CartPage>
         ),
       ),
     );
+  }
+
+  goToCheckout() async {
+    String isCart = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CheckoutPage()),
+    );
+
+    if (isCart == "true") {
+      if (userInfo != null) {
+        fetchCart();
+      }
+    }
+
+    print("isCart - $isCart");
   }
 
   Future<void> showMyDialog(int index) async {

@@ -30,7 +30,7 @@ class DetailsPageState extends State<DetailsPage>
   AnimationController controller;
   bool _isLoggedIn = false;
   String _debugLabelString = "", review = '', _ratingStatus = '';
-  bool _requireConsent = false, isfav = false;
+  bool _requireConsent = false, isfav = false, reviewAvailable = false;
   CarouselSlider carouselSlider;
   int _current = 0,
       num = 0,
@@ -64,6 +64,7 @@ class DetailsPageState extends State<DetailsPage>
     if (userInfo != null) {
       fetchCart();
       fetchFavlist();
+      fetchReviewAvailable();
     }
 
     discountAmt = Utils().getProductDiscount(
@@ -119,6 +120,31 @@ class DetailsPageState extends State<DetailsPage>
           count++;
         });
       }
+    }
+  }
+
+  Future<void> fetchReviewAvailable() async {
+    print("hit");
+    final response = await http
+        .post(ip + 'easy_shopping/order_product_list.php', body: {
+      "prod_id": widget.product_info["prod_id"],
+      "user_id": "${userInfo["user_id"]}"
+    });
+    print({
+      "prod_id": widget.product_info["prod_id"],
+      "user_id": "${userInfo["user_id"]}"
+    });
+    if (response.statusCode == 200) {
+      print(response.body);
+      if (response.body == "Yes") {
+        setState(() {
+          reviewAvailable = true;
+        });
+
+        print("reviewAvailable - $reviewAvailable");
+      }
+    } else {
+      throw Exception('Unable to fetch reviews from the REST API');
     }
   }
 
@@ -197,7 +223,10 @@ class DetailsPageState extends State<DetailsPage>
           int qty = int.parse(cartList[i]["product_qnt"]);
           double price = double.parse(cartList[i]["product_price"]);
           double total = qty * price;
-          totalPrice += total;
+          String discStr = "$total";
+          int discountAmt =
+              Utils().getProductDiscount(discStr, cartList[i]["prod_discount"]);
+          totalPrice += (discountAmt == 0 ? total : discountAmt);
         }
         setState(() {
           tk = totalPrice;
@@ -1396,177 +1425,183 @@ class DetailsPageState extends State<DetailsPage>
                 ),
                 !isLoggedin
                     ? Container()
-                    : Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.only(
-                            top: 5, left: 20, right: 20, bottom: 5),
-                        padding: EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
-                            color: Colors.white,
-                            border: Border.all(width: 0.2, color: Colors.grey)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              "Write a review",
-                              style:
-                                  TextStyle(fontSize: 17, color: Colors.black),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    : !reviewAvailable
+                        ? Container()
+                        : Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.only(
+                                top: 5, left: 20, right: 20, bottom: 5),
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5.0)),
+                                color: Colors.white,
+                                border:
+                                    Border.all(width: 0.2, color: Colors.grey)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
+                                Text(
+                                  "Write a review",
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black),
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
                                 Row(
-                                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
-                                        new GestureDetector(
-                                          child: new Icon(
-                                            Icons.star,
-                                            color: _rating >= 1
-                                                ? golden
-                                                : Colors.grey,
-                                          ),
-                                          onTap: () => rate(1),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            new GestureDetector(
+                                              child: new Icon(
+                                                Icons.star,
+                                                color: _rating >= 1
+                                                    ? golden
+                                                    : Colors.grey,
+                                              ),
+                                              onTap: () => rate(1),
+                                            ),
+                                            new GestureDetector(
+                                              child: new Icon(
+                                                Icons.star,
+                                                color: _rating >= 2
+                                                    ? golden
+                                                    : Colors.grey,
+                                              ),
+                                              onTap: () => rate(2),
+                                            ),
+                                            new GestureDetector(
+                                              child: new Icon(
+                                                Icons.star,
+                                                color: _rating >= 3
+                                                    ? golden
+                                                    : Colors.grey,
+                                              ),
+                                              onTap: () => rate(3),
+                                            ),
+                                            new GestureDetector(
+                                              child: new Icon(
+                                                Icons.star,
+                                                color: _rating >= 4
+                                                    ? golden
+                                                    : Colors.grey,
+                                              ),
+                                              onTap: () => rate(4),
+                                            ),
+                                            new GestureDetector(
+                                              child: new Icon(
+                                                Icons.star,
+                                                color: _rating >= 5
+                                                    ? golden
+                                                    : Colors.grey,
+                                              ),
+                                              onTap: () => rate(5),
+                                            )
+                                          ],
                                         ),
-                                        new GestureDetector(
-                                          child: new Icon(
-                                            Icons.star,
-                                            color: _rating >= 2
-                                                ? golden
-                                                : Colors.grey,
-                                          ),
-                                          onTap: () => rate(2),
-                                        ),
-                                        new GestureDetector(
-                                          child: new Icon(
-                                            Icons.star,
-                                            color: _rating >= 3
-                                                ? golden
-                                                : Colors.grey,
-                                          ),
-                                          onTap: () => rate(3),
-                                        ),
-                                        new GestureDetector(
-                                          child: new Icon(
-                                            Icons.star,
-                                            color: _rating >= 4
-                                                ? golden
-                                                : Colors.grey,
-                                          ),
-                                          onTap: () => rate(4),
-                                        ),
-                                        new GestureDetector(
-                                          child: new Icon(
-                                            Icons.star,
-                                            color: _rating >= 5
-                                                ? golden
-                                                : Colors.grey,
-                                          ),
-                                          onTap: () => rate(5),
-                                        )
                                       ],
                                     ),
+                                    Text(
+                                      _ratingStatus,
+                                      style: TextStyle(color: mainheader),
+                                    )
                                   ],
                                 ),
-                                Text(
-                                  _ratingStatus,
-                                  style: TextStyle(color: mainheader),
-                                )
-                              ],
-                            ),
-                            // Container(
-                            //   height: 100,
-                            //   margin: EdgeInsets.only(top: 15),
-                            //   decoration: BoxDecoration(
-                            //       borderRadius:
-                            //           BorderRadius.all(Radius.circular(5.0)),
-                            //       color: Colors.white,
-                            //       border: Border.all(width: 0.5, color: Colors.grey)),
-                            //   child: TextField(
-                            //     autofocus: false,
-                            //     controller: _reviewController,
-                            //     decoration: InputDecoration(
-                            //       hintText: "Type your review...",
-                            //       contentPadding:
-                            //           EdgeInsets.fromLTRB(0.0, 10.0, 20.0, 10.0),
-                            //       border: InputBorder.none,
-                            //     ),
-                            //     onChanged: (value) {
-                            //       review = value;
-                            //     },
-                            //   ),
-                            // ),
-                            Container(
-                              //height: 100,
-                              padding: EdgeInsets.all(5),
-                              margin: EdgeInsets.only(top: 15),
-                              decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5.0)),
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      width: 0.5, color: Colors.grey)),
-                              child: new ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxHeight: 100.0,
-                                ),
-                                child: new Scrollbar(
-                                  child: new SingleChildScrollView(
-                                    scrollDirection: Axis.vertical,
-                                    reverse: true,
-                                    child: new TextField(
-                                      maxLines: null,
-                                      autofocus: false,
-                                      controller: _reviewController,
-                                      decoration: InputDecoration(
-                                        hintText: "Type your review...",
-                                        contentPadding: EdgeInsets.fromLTRB(
-                                            0.0, 10.0, 20.0, 10.0),
-                                        border: InputBorder.none,
+                                // Container(
+                                //   height: 100,
+                                //   margin: EdgeInsets.only(top: 15),
+                                //   decoration: BoxDecoration(
+                                //       borderRadius:
+                                //           BorderRadius.all(Radius.circular(5.0)),
+                                //       color: Colors.white,
+                                //       border: Border.all(width: 0.5, color: Colors.grey)),
+                                //   child: TextField(
+                                //     autofocus: false,
+                                //     controller: _reviewController,
+                                //     decoration: InputDecoration(
+                                //       hintText: "Type your review...",
+                                //       contentPadding:
+                                //           EdgeInsets.fromLTRB(0.0, 10.0, 20.0, 10.0),
+                                //       border: InputBorder.none,
+                                //     ),
+                                //     onChanged: (value) {
+                                //       review = value;
+                                //     },
+                                //   ),
+                                // ),
+                                Container(
+                                  //height: 100,
+                                  padding: EdgeInsets.all(5),
+                                  margin: EdgeInsets.only(top: 15),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                      color: Colors.white,
+                                      border: Border.all(
+                                          width: 0.5, color: Colors.grey)),
+                                  child: new ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxHeight: 100.0,
+                                    ),
+                                    child: new Scrollbar(
+                                      child: new SingleChildScrollView(
+                                        scrollDirection: Axis.vertical,
+                                        reverse: true,
+                                        child: new TextField(
+                                          maxLines: null,
+                                          autofocus: false,
+                                          controller: _reviewController,
+                                          decoration: InputDecoration(
+                                            hintText: "Type your review...",
+                                            contentPadding: EdgeInsets.fromLTRB(
+                                                0.0, 10.0, 20.0, 10.0),
+                                            border: InputBorder.none,
+                                          ),
+                                          onChanged: (value) {
+                                            review = value;
+                                          },
+                                        ),
                                       ),
-                                      onChanged: (value) {
-                                        review = value;
-                                      },
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                GestureDetector(
-                                  onTap: () {
-                                    addReview();
-                                  },
-                                  child: Container(
-                                      margin: EdgeInsets.only(top: 10),
-                                      padding: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(5.0)),
-                                          color: mainheader,
-                                          border: Border.all(
-                                              width: 0.2, color: Colors.grey)),
-                                      child: Text(
-                                        "Submit",
-                                        style: TextStyle(color: Colors.white),
-                                      )),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    GestureDetector(
+                                      onTap: () {
+                                        addReview();
+                                      },
+                                      child: Container(
+                                          margin: EdgeInsets.only(top: 10),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(5.0)),
+                                              color: mainheader,
+                                              border: Border.all(
+                                                  width: 0.2,
+                                                  color: Colors.grey)),
+                                          child: Text(
+                                            "Submit",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
               ],
             ),
           ),
@@ -1591,10 +1626,7 @@ class DetailsPageState extends State<DetailsPage>
               Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CheckoutPage()));
+                    goToCheckout();
                   },
                   child: Container(
                     child: Row(
@@ -1626,5 +1658,20 @@ class DetailsPageState extends State<DetailsPage>
         ),
       ),
     );
+  }
+
+  goToCheckout() async {
+    String isCart = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CheckoutPage()),
+    );
+
+    if (isCart == "true") {
+      if (userInfo != null) {
+        fetchCart();
+      }
+    }
+
+    print("isCart - $isCart");
   }
 }

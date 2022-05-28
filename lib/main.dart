@@ -16,6 +16,7 @@ Color golden = Color(0xFFCFB53B);
 String pageDirect = "";
 String userID = "";
 int selectedPage = 0;
+double totalPrice = 0.0;
 bool isLoggedin = false;
 List userList = [];
 var userInfo;

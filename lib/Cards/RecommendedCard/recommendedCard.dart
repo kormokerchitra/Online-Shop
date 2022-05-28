@@ -163,7 +163,7 @@ class _RecommendedCardState extends State<RecommendedCard> {
                     Container(
                       margin: EdgeInsets.only(left: 3),
                       child: Text(
-                        "$rating",
+                        "$rating (${widget.prod_item["rev_count"]})",
                         style: TextStyle(color: Colors.grey),
                       ),
                     )

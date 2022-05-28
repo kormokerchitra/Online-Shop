@@ -114,7 +114,7 @@ class _OrderCardState extends State<OrderCard> {
                             Container(
                               margin: EdgeInsets.only(top: 5),
                               child: Text(
-                                "Date: ${widget.order_item["delivery_date"]}",
+                                "Delivery Date: ${widget.order_item["delivery_date"]}",
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 15,

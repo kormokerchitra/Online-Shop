@@ -50,8 +50,9 @@ class AllCartPageState extends State<AllCartPage>
           double price = double.parse(cartList[i]["product_price"]);
           double total = qty * price;
 
-          int discountAmt = Utils().getProductDiscount(
-              cartList[i]["product_price"], cartList[i]["prod_discount"]);
+          String discStr = "$total";
+          int discountAmt =
+              Utils().getProductDiscount(discStr, cartList[i]["prod_discount"]);
           totalPrice += (discountAmt == 0 ? total : discountAmt);
         }
         print("totalPrice");
@@ -169,16 +170,17 @@ class AllCartPageState extends State<AllCartPage>
                                                   Row(
                                                     children: <Widget>[
                                                       //Icon(
-                                                        //Icons.attach_money,
-                                                        //color: Colors.black54,
-                                                        //size: 17,
+                                                      //Icons.attach_money,
+                                                      //color: Colors.black54,
+                                                      //size: 17,
                                                       //),
                                                       SizedBox(
                                                         width: 3,
                                                       ),
                                                       Text(
                                                         discountAmt == 0
-                                                            ? cartList[index]["product_price"]
+                                                            ? cartList[index][
+                                                                "product_price"]
                                                             : "Tk. $discountAmt",
                                                         style: TextStyle(
                                                           fontSize: 14,
@@ -308,11 +310,7 @@ class AllCartPageState extends State<AllCartPage>
                         GestureDetector(
                           onTap: () {
                             isLoggedin
-                                ? Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => CheckoutPage()),
-                                  )
+                                ? goToCheckout()
                                 : Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -348,6 +346,21 @@ class AllCartPageState extends State<AllCartPage>
         ),
       ),
     );
+  }
+
+  goToCheckout() async {
+    String isCart = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CheckoutPage()),
+    );
+
+    if (isCart == "true") {
+      if (userInfo != null) {
+        fetchCart();
+      }
+    }
+
+    print("isCart - $isCart");
   }
 
   Future<void> showMyDialog(int index) async {
