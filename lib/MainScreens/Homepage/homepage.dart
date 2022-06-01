@@ -44,7 +44,9 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     print(userID);
-    pro_pic = "${userInfo["pro_pic"]}";
+    if (userInfo != null) {
+      pro_pic = "${userInfo["pro_pic"]}";
+    }
   }
 
   final pageOptions = [
@@ -56,8 +58,12 @@ class HomePageState extends State<HomePage>
 
   void clearLog() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
-    isLoggedin = false;
+    setState(() {
+      prefs.clear();
+      isLoggedin = false;
+      pro_pic = "";
+      userInfo = null;
+    });
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => HomePage()));
   }

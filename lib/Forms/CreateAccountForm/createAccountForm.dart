@@ -22,6 +22,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   TextEditingController _conPassController = TextEditingController();
   int cardStatus = 0;
   File fileImage;
+  String base64Image = "";
 
   @override
   void initState() {
@@ -654,12 +655,25 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   }
 
   Future<void> createAccount() async {
-    if (_passController.text != _conPassController.text) {
+    bool emailValid =
+        RegExp(r"^[a-zA-Z.a-zA-Z.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            .hasMatch(_emailController.text);
+    if (!emailValid) {
+      showAlert("Invalid email");
+    } else if (_passController.text != _conPassController.text) {
       showAlert("Password doesn't match");
+    } else if (!_phoneController.text.isEmpty &&
+        _phoneController.text.length < 11) {
+      showAlert("Invalid Phone number");
+    } else if (_userNameController.text.contains(" ")) {
+      showAlert("Invalid username");
     } else {
-      List<int> imageBytes = fileImage.readAsBytesSync();
-      print(imageBytes);
-      String base64Image = base64Encode(imageBytes);
+      if (fileImage != null) {
+        List<int> imageBytes = fileImage.readAsBytesSync();
+        print(imageBytes);
+        base64Image = base64Encode(imageBytes);
+      }
+
       final response =
           await http.post(ip + 'easy_shopping/user_add.php', body: {
         "image": base64Image,

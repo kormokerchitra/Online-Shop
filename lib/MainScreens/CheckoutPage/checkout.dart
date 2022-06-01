@@ -164,7 +164,7 @@ class CheckoutPageState extends State<CheckoutPage>
   Widget build(BuildContext context) {
     return WillPopScope(
       // ignore: missing_return
-      onWillPop: (){
+      onWillPop: () {
         Navigator.pop(context, "true");
       },
       child: Scaffold(
@@ -232,8 +232,8 @@ class CheckoutPageState extends State<CheckoutPage>
                 children: <Widget>[
                   Container(
                       width: MediaQuery.of(context).size.width,
-                      margin:
-                          EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
+                      margin: EdgeInsets.only(
+                          top: 5, left: 20, right: 20, bottom: 5),
                       padding: EdgeInsets.all(15),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -251,7 +251,8 @@ class CheckoutPageState extends State<CheckoutPage>
                             height: 10,
                           ),
                           Container(
-                            padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
+                            padding:
+                                EdgeInsets.only(top: 5, right: 5, bottom: 5),
                             width: MediaQuery.of(context).size.width,
                             child: Column(
                               children: <Widget>[
@@ -275,7 +276,8 @@ class CheckoutPageState extends State<CheckoutPage>
                             ),
                           ),
                           Container(
-                            padding: EdgeInsets.only(top: 0, right: 5, bottom: 5),
+                            padding:
+                                EdgeInsets.only(top: 0, right: 5, bottom: 5),
                             width: MediaQuery.of(context).size.width,
                             child: Center(
                               child: Column(
@@ -286,8 +288,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                     children: <Widget>[
                                       Flexible(
                                         child: Container(
-                                          margin:
-                                              EdgeInsets.only(top: 5, bottom: 5),
+                                          margin: EdgeInsets.only(
+                                              top: 5, bottom: 5),
                                           child: Row(
                                             children: <Widget>[
                                               Icon(Icons.location_on,
@@ -300,9 +302,11 @@ class CheckoutPageState extends State<CheckoutPage>
                                                           maxLines: null,
                                                           autofocus: true,
                                                           style: TextStyle(
-                                                            color: Colors.black45,
+                                                            color:
+                                                                Colors.black45,
                                                             fontSize: 14,
-                                                            fontFamily: 'Oswald',
+                                                            fontFamily:
+                                                                'Oswald',
                                                           ),
                                                           controller:
                                                               placeController,
@@ -328,8 +332,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                                                         10.0,
                                                                         20.0,
                                                                         10.0),
-                                                            border:
-                                                                InputBorder.none,
+                                                            border: InputBorder
+                                                                .none,
                                                           ),
                                                           onChanged: (value) {
                                                             setState(() {
@@ -346,7 +350,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                                               ? "Add Address"
                                                               : place,
                                                           style: TextStyle(
-                                                              color: Colors.grey),
+                                                              color:
+                                                                  Colors.grey),
                                                         )),
                                               ),
                                             ],
@@ -366,8 +371,11 @@ class CheckoutPageState extends State<CheckoutPage>
                                         child: Container(
                                             margin: EdgeInsets.only(left: 5),
                                             child: Text(
-                                              placeEdit == true ? "Done" : "Edit",
-                                              style: TextStyle(color: mainheader),
+                                              placeEdit == true
+                                                  ? "Done"
+                                                  : "Edit",
+                                              style:
+                                                  TextStyle(color: mainheader),
                                             )),
                                       ),
                                     ],
@@ -377,7 +385,8 @@ class CheckoutPageState extends State<CheckoutPage>
                             ),
                           ),
                           Container(
-                            padding: EdgeInsets.only(top: 0, right: 5, bottom: 5),
+                            padding:
+                                EdgeInsets.only(top: 0, right: 5, bottom: 5),
                             width: MediaQuery.of(context).size.width,
                             child: Center(
                               child: Column(
@@ -388,8 +397,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                     children: <Widget>[
                                       Flexible(
                                         child: Container(
-                                          margin:
-                                              EdgeInsets.only(top: 5, bottom: 5),
+                                          margin: EdgeInsets.only(
+                                              top: 5, bottom: 5),
                                           child: Row(
                                             children: <Widget>[
                                               Icon(Icons.phone,
@@ -402,9 +411,11 @@ class CheckoutPageState extends State<CheckoutPage>
                                                           maxLines: null,
                                                           autofocus: true,
                                                           style: TextStyle(
-                                                            color: Colors.black45,
+                                                            color:
+                                                                Colors.black45,
                                                             fontSize: 14,
-                                                            fontFamily: 'Oswald',
+                                                            fontFamily:
+                                                                'Oswald',
                                                           ),
                                                           controller:
                                                               phoneController,
@@ -430,8 +441,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                                                         10.0,
                                                                         20.0,
                                                                         10.0),
-                                                            border:
-                                                                InputBorder.none,
+                                                            border: InputBorder
+                                                                .none,
                                                           ),
                                                           onChanged: (value) {
                                                             setState(() {
@@ -448,7 +459,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                                               ? "Contact Name"
                                                               : phone,
                                                           style: TextStyle(
-                                                              color: Colors.grey),
+                                                              color:
+                                                                  Colors.grey),
                                                         )),
                                               ),
                                             ],
@@ -468,8 +480,11 @@ class CheckoutPageState extends State<CheckoutPage>
                                         child: Container(
                                             margin: EdgeInsets.only(left: 5),
                                             child: Text(
-                                              phoneEdit == true ? "Done" : "Edit",
-                                              style: TextStyle(color: mainheader),
+                                              phoneEdit == true
+                                                  ? "Done"
+                                                  : "Edit",
+                                              style:
+                                                  TextStyle(color: mainheader),
                                             )),
                                       ),
                                     ],
@@ -504,7 +519,8 @@ class CheckoutPageState extends State<CheckoutPage>
                             ),
                           ),
                           Container(
-                            padding: EdgeInsets.only(top: 0, right: 5, bottom: 5),
+                            padding:
+                                EdgeInsets.only(top: 0, right: 5, bottom: 5),
                             width: MediaQuery.of(context).size.width,
                             child: Center(
                               child: Column(
@@ -521,7 +537,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                             Icon(Icons.calendar_today,
                                                 color: Colors.grey, size: 16),
                                             Container(
-                                                margin: EdgeInsets.only(left: 5),
+                                                margin:
+                                                    EdgeInsets.only(left: 5),
                                                 child: Text(
                                                   runningdate,
                                                   style: TextStyle(
@@ -538,7 +555,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                             margin: EdgeInsets.only(left: 5),
                                             child: Text(
                                               "Choose",
-                                              style: TextStyle(color: mainheader),
+                                              style:
+                                                  TextStyle(color: mainheader),
                                             )),
                                       ),
                                     ],
@@ -593,8 +611,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                         GestureDetector(
                                           onTap: () {
                                             setState(() {
-                                              String qnt =
-                                                  cartList[index]["product_qnt"];
+                                              String qnt = cartList[index]
+                                                  ["product_qnt"];
                                               val = int.parse(qnt);
                                               val--;
                                               if (val <= 0) {
@@ -607,7 +625,8 @@ class CheckoutPageState extends State<CheckoutPage>
 
                                               updateCart(
                                                   cartList[index]["cart_id"],
-                                                  cartList[index]["product_qnt"]);
+                                                  cartList[index]
+                                                      ["product_qnt"]);
                                             });
                                           },
                                           child: Container(
@@ -620,21 +639,24 @@ class CheckoutPageState extends State<CheckoutPage>
                                             margin: EdgeInsets.only(
                                                 left: 3, right: 10),
                                             child: Icon(Icons.remove,
-                                                size: 15, color: Colors.black54),
+                                                size: 15,
+                                                color: Colors.black54),
                                           ),
                                         ),
                                         Text(
                                           "${cartList[index]["product_qnt"]}",
                                           textAlign: TextAlign.start,
-                                          style: TextStyle(color: Colors.black54),
+                                          style:
+                                              TextStyle(color: Colors.black54),
                                         ),
                                         GestureDetector(
                                           onTap: () {
                                             setState(() {
-                                              int qty = int.parse(cartList[index]
-                                                  ["main_product_qnt"]);
-                                              String qnt =
-                                                  cartList[index]["product_qnt"];
+                                              int qty = int.parse(
+                                                  cartList[index]
+                                                      ["main_product_qnt"]);
+                                              String qnt = cartList[index]
+                                                  ["product_qnt"];
                                               val = int.parse(qnt);
                                               val++;
                                               print(val);
@@ -662,7 +684,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                             margin: EdgeInsets.only(
                                                 left: 10, right: 3),
                                             child: Icon(Icons.add,
-                                                size: 15, color: Colors.black54),
+                                                size: 15,
+                                                color: Colors.black54),
                                           ),
                                         ),
                                       ],
@@ -802,9 +825,11 @@ class CheckoutPageState extends State<CheckoutPage>
                                         child: Row(
                                       children: <Widget>[
                                         Text(
-                                          "Tk. " + totalPrice.toStringAsFixed(2),
+                                          "Tk. " +
+                                              totalPrice.toStringAsFixed(2),
                                           textAlign: TextAlign.start,
-                                          style: TextStyle(color: Colors.black54),
+                                          style:
+                                              TextStyle(color: Colors.black54),
                                         ),
                                       ],
                                     ))
@@ -860,7 +885,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                         Text(
                                           "Tk. " + subTotal.toStringAsFixed(2),
                                           textAlign: TextAlign.start,
-                                          style: TextStyle(color: Colors.black54),
+                                          style:
+                                              TextStyle(color: Colors.black54),
                                         ),
                                       ],
                                     ))
@@ -886,7 +912,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                         Icon(Icons.remove,
                                             size: 15, color: mainheader),
                                         Text(
-                                          "Tk. " + couponPrice.toStringAsFixed(2),
+                                          "Tk. " +
+                                              couponPrice.toStringAsFixed(2),
                                           textAlign: TextAlign.start,
                                           style: TextStyle(color: mainheader),
                                         ),
@@ -914,7 +941,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                         Text(
                                           "Tk. 100.00",
                                           textAlign: TextAlign.start,
-                                          style: TextStyle(color: Colors.black54),
+                                          style:
+                                              TextStyle(color: Colors.black54),
                                         ),
                                       ],
                                     ))
@@ -985,13 +1013,14 @@ class CheckoutPageState extends State<CheckoutPage>
                           child: Column(
                             children: <Widget>[
                               Container(
-                                padding:
-                                    EdgeInsets.only(top: 5, right: 5, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 5, right: 5, bottom: 5),
                                 width: MediaQuery.of(context).size.width,
                                 child: Column(
                                   children: <Widget>[
                                     Container(
-                                      margin: EdgeInsets.only(top: 5, bottom: 5),
+                                      margin:
+                                          EdgeInsets.only(top: 5, bottom: 5),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -1001,7 +1030,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                               //padding: EdgeInsets.all(20),
                                               child: Text(
                                             "Bkash Payment",
-                                            style: TextStyle(color: Colors.grey),
+                                            style:
+                                                TextStyle(color: Colors.grey),
                                           )),
                                         ],
                                       ),
@@ -1010,8 +1040,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                 ),
                               ),
                               Container(
-                                padding:
-                                    EdgeInsets.only(top: 0, right: 5, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 0, right: 5, bottom: 5),
                                 width: MediaQuery.of(context).size.width,
                                 child: Center(
                                   child: Column(
@@ -1026,10 +1056,11 @@ class CheckoutPageState extends State<CheckoutPage>
                                             child: Row(
                                               children: <Widget>[
                                                 Icon(Icons.credit_card,
-                                                    color: Colors.grey, size: 16),
+                                                    color: Colors.grey,
+                                                    size: 16),
                                                 Container(
-                                                    margin:
-                                                        EdgeInsets.only(left: 5),
+                                                    margin: EdgeInsets.only(
+                                                        left: 5),
                                                     child: Text(
                                                       "01786273137",
                                                       style: TextStyle(
@@ -1050,15 +1081,18 @@ class CheckoutPageState extends State<CheckoutPage>
                                                   color: paymentChoose == false
                                                       ? mainheader
                                                       : Colors.grey[200],
-                                                  borderRadius: BorderRadius.all(
-                                                      Radius.circular(5)),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(5)),
                                                 ),
                                                 padding: EdgeInsets.all(2),
-                                                margin: EdgeInsets.only(left: 5),
+                                                margin:
+                                                    EdgeInsets.only(left: 5),
                                                 child: Icon(Icons.done,
-                                                    color: paymentChoose == false
-                                                        ? Colors.white
-                                                        : Colors.grey,
+                                                    color:
+                                                        paymentChoose == false
+                                                            ? Colors.white
+                                                            : Colors.grey,
                                                     size: 15)),
                                           ),
                                         ],
@@ -1068,13 +1102,14 @@ class CheckoutPageState extends State<CheckoutPage>
                                 ),
                               ),
                               Container(
-                                padding:
-                                    EdgeInsets.only(top: 15, right: 5, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 15, right: 5, bottom: 5),
                                 width: MediaQuery.of(context).size.width,
                                 child: Column(
                                   children: <Widget>[
                                     Container(
-                                      margin: EdgeInsets.only(top: 5, bottom: 5),
+                                      margin:
+                                          EdgeInsets.only(top: 5, bottom: 5),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -1084,7 +1119,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                               //padding: EdgeInsets.all(20),
                                               child: Text(
                                             "Cash on delivery",
-                                            style: TextStyle(color: Colors.grey),
+                                            style:
+                                                TextStyle(color: Colors.grey),
                                           )),
                                         ],
                                       ),
@@ -1093,8 +1129,8 @@ class CheckoutPageState extends State<CheckoutPage>
                                 ),
                               ),
                               Container(
-                                padding:
-                                    EdgeInsets.only(top: 0, right: 5, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 0, right: 5, bottom: 5),
                                 width: MediaQuery.of(context).size.width,
                                 child: Center(
                                   child: Column(
@@ -1109,12 +1145,15 @@ class CheckoutPageState extends State<CheckoutPage>
                                             child: Row(
                                               children: <Widget>[
                                                 Icon(Icons.location_on,
-                                                    color: Colors.grey, size: 16),
+                                                    color: Colors.grey,
+                                                    size: 16),
                                                 Container(
-                                                    margin:
-                                                        EdgeInsets.only(left: 5),
+                                                    margin: EdgeInsets.only(
+                                                        left: 5),
                                                     child: Text(
-                                                      place == "" ? "N/A" : place,
+                                                      place == ""
+                                                          ? "N/A"
+                                                          : place,
                                                       style: TextStyle(
                                                           color: Colors.grey),
                                                     )),
@@ -1133,11 +1172,13 @@ class CheckoutPageState extends State<CheckoutPage>
                                                   color: paymentChoose == true
                                                       ? mainheader
                                                       : Colors.grey[200],
-                                                  borderRadius: BorderRadius.all(
-                                                      Radius.circular(5)),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(5)),
                                                 ),
                                                 padding: EdgeInsets.all(2),
-                                                margin: EdgeInsets.only(left: 5),
+                                                margin:
+                                                    EdgeInsets.only(left: 5),
                                                 child: Icon(Icons.done,
                                                     color: paymentChoose == true
                                                         ? Colors.white
@@ -1166,7 +1207,8 @@ class CheckoutPageState extends State<CheckoutPage>
                             left: 20, right: 20, bottom: 20, top: 10),
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
                             color: mainheader,
                             border: Border.all(width: 0.2, color: Colors.grey)),
                         child: Text(
@@ -1229,6 +1271,8 @@ class CheckoutPageState extends State<CheckoutPage>
       showAlert("Please provide your address");
     } else if (phoneController.text.isEmpty) {
       showAlert("Please provide your phone number");
+    } else if (phoneController.text.length < 11) {
+      showAlert("Please provide valid phone number");
     } else {
       print("cart delete");
       final response =

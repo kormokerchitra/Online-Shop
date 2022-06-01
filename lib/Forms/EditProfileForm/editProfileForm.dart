@@ -719,44 +719,57 @@ class _EditProfileFormState extends State<EditProfileForm> {
   }
 
   Future<void> updateProfile() async {
-    setState(() {
-      loader = true;
-    });
-    if (fileImage != null) {
-      List<int> imageBytes = fileImage.readAsBytesSync();
-      print(imageBytes);
-      base64Image = base64Encode(imageBytes);
-      print("base64Image upload");
-      print(base64Image);
-    }
-
-    print(base64Image);
-    final response = await http.post(ip + 'easy_shopping/user_edit.php', body: {
-      "user_id": "${userInfo["user_id"]}",
-      "image": base64Image,
-      "full_name": _fullNameController.text,
-      "username": _userNameController.text,
-      "address": _addressController.text,
-      "email": _emailController.text,
-      "phone_num": _phoneController.text,
-    });
-    if (response.statusCode == 200) {
-      print(response.body);
-
-      setState(() {
-        var user = json.decode(response.body);
-        userInfo = user["user_info"];
-        storeToLocal(json.encode(userInfo));
-        selectedPage = 0;
-        isLoggedin = true;
-        loader = false;
-        userID = "${userInfo["user_id"]}";
-        Navigator.pop(context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
-      });
+    bool emailValid =
+        RegExp(r"^[a-zA-Z.a-zA-Z.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            .hasMatch(_emailController.text);
+    if (!emailValid) {
+      showAlert("Invalid email");
+    } else if (!_phoneController.text.isEmpty &&
+        _phoneController.text.length < 11) {
+      showAlert("Invalid Phone number");
+    } else if (_userNameController.text.contains(" ")) {
+      showAlert("Invalid username");
     } else {
-      throw Exception('Unable to update user from the REST API');
+      setState(() {
+        loader = true;
+      });
+      if (fileImage != null) {
+        List<int> imageBytes = fileImage.readAsBytesSync();
+        print(imageBytes);
+        base64Image = base64Encode(imageBytes);
+        print("base64Image upload");
+        print(base64Image);
+      }
+
+      print(base64Image);
+      final response =
+          await http.post(ip + 'easy_shopping/user_edit.php', body: {
+        "user_id": "${userInfo["user_id"]}",
+        "image": base64Image,
+        "full_name": _fullNameController.text,
+        "username": _userNameController.text,
+        "address": _addressController.text,
+        "email": _emailController.text,
+        "phone_num": _phoneController.text,
+      });
+      if (response.statusCode == 200) {
+        print(response.body);
+
+        setState(() {
+          var user = json.decode(response.body);
+          userInfo = user["user_info"];
+          storeToLocal(json.encode(userInfo));
+          selectedPage = 0;
+          isLoggedin = true;
+          loader = false;
+          userID = "${userInfo["user_id"]}";
+          Navigator.pop(context);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => HomePage()));
+        });
+      } else {
+        throw Exception('Unable to update user from the REST API');
+      }
     }
   }
 

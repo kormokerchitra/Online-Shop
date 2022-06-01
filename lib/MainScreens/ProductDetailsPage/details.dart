@@ -493,7 +493,10 @@ class DetailsPageState extends State<DetailsPage>
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black45),
                           ),
-                          Text(widget.product_info["product_size"],
+                          Text(
+                              widget.product_info["product_size"] == ""
+                                  ? "N/A"
+                                  : widget.product_info["product_size"],
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black54))
                         ],
@@ -661,7 +664,11 @@ class DetailsPageState extends State<DetailsPage>
                                   Expanded(
                                     child: Container(
                                         child: Text(
-                                      widget.product_info["prod_dimension"],
+                                      widget.product_info["prod_dimension"] ==
+                                              ""
+                                          ? "N/A"
+                                          : widget
+                                              .product_info["prod_dimension"],
                                       textAlign: TextAlign.end,
                                       style: TextStyle(color: Colors.black54),
                                     )),

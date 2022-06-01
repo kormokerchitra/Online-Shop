@@ -21,7 +21,7 @@ bool isLoggedin = false;
 List userList = [];
 var userInfo;
 
-String ip = "http://192.168.100.4/";
+String ip = "http://192.168.100.7/";
 
 class MyApp extends StatefulWidget {
   @override
