@@ -123,6 +123,18 @@ class _OrderCardState extends State<OrderCard> {
                                 textAlign: TextAlign.start,
                               ),
                             ),
+                            Container(
+                              margin: EdgeInsets.only(top: 5),
+                              child: Text(
+                                "Status: ${widget.order_item["status"]}",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: mainheader,
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
                           ],
                         ),
                       ),

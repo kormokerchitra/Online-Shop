@@ -37,8 +37,10 @@ class HomePageState extends State<HomePage>
   Animation<double> animation;
   AnimationController controller;
   int currentIndex = selectedPage;
-  String user_name = "";
+  String user_name = "", notification_count = "0";
   String pro_pic = "";
+  List notifyList = [];
+  int notifCount = 0;
 
   @override
   void initState() {
@@ -46,6 +48,7 @@ class HomePageState extends State<HomePage>
     print(userID);
     if (userInfo != null) {
       pro_pic = "${userInfo["pro_pic"]}";
+      getNotification();
     }
   }
 
@@ -66,6 +69,37 @@ class HomePageState extends State<HomePage>
     });
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => HomePage()));
+  }
+
+  Future<void> getNotification() async {
+    final response = await http.post(
+        ip + 'easy_shopping/notification_all_list.php',
+        body: {"receiver": userInfo["user_id"]});
+    if (response.statusCode == 200) {
+      print(response.body);
+      var notifyBody = json.decode(response.body);
+      print(notifyBody["notification_list"]);
+
+      setState(() {
+        var notifList = notifyBody["notification_list"];
+        for (int i = 0; i < notifList.length; i++) {
+          print(
+              "notifylist item ${notifList[i]["receiver"]} . ${userInfo["user_id"]}");
+          if (notifList[i]["receiver"] == userInfo["user_id"]) {
+            if (notifList[i]["seen"] == "0") {
+              notifCount++;
+              notification_count = "$notifCount";
+            }
+            notifyList.add(notifList[i]);
+          }
+        }
+
+        print("notifylist - $notifyList");
+        print("notifylist_count - $notification_count");
+      });
+    } else {
+      throw Exception('Unable to fetch counter from the REST API');
+    }
   }
 
   Future<void> showMyDialog() async {
@@ -124,124 +158,139 @@ class HomePageState extends State<HomePage>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Container(
-                          margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: isLoggedin
-                                ? CrossAxisAlignment.center
-                                : CrossAxisAlignment.start,
-                            children: <Widget>[
-                              pro_pic != ""
-                                  ? Container(
-                                      padding: EdgeInsets.all(1.0),
-                                      child: CircleAvatar(
-                                        radius: 30.0,
-                                        backgroundColor: Colors.transparent,
-                                        backgroundImage:
-                                            NetworkImage(ip + pro_pic),
+                        Flexible(
+                          child: Container(
+                            margin:
+                                EdgeInsets.only(left: 20, right: 20, top: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: isLoggedin
+                                  ? CrossAxisAlignment.center
+                                  : CrossAxisAlignment.start,
+                              children: <Widget>[
+                                pro_pic != ""
+                                    ? Container(
+                                        padding: EdgeInsets.all(1.0),
+                                        child: CircleAvatar(
+                                          radius: 30.0,
+                                          backgroundColor: Colors.transparent,
+                                          backgroundImage:
+                                              NetworkImage(ip + pro_pic),
+                                        ),
+                                        decoration: new BoxDecoration(
+                                          color: Colors.grey, // border color
+                                          shape: BoxShape.circle,
+                                        ),
+                                      )
+                                    : Container(
+                                        //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
+                                        padding: EdgeInsets.all(1.0),
+                                        child: CircleAvatar(
+                                          radius: 30.0,
+                                          backgroundColor: Colors.transparent,
+                                          backgroundImage:
+                                              AssetImage('assets/user.png'),
+                                        ),
+                                        decoration: new BoxDecoration(
+                                          color: Colors.grey, // border color
+                                          shape: BoxShape.circle,
+                                        ),
                                       ),
-                                      decoration: new BoxDecoration(
-                                        color: Colors.grey, // border color
-                                        shape: BoxShape.circle,
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        "Hello,",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.black38),
                                       ),
-                                    )
-                                  : Container(
-                                      //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
-                                      padding: EdgeInsets.all(1.0),
-                                      child: CircleAvatar(
-                                        radius: 30.0,
-                                        backgroundColor: Colors.transparent,
-                                        backgroundImage:
-                                            AssetImage('assets/user.png'),
+                                      Text(
+                                        !isLoggedin
+                                            ? "User"
+                                            : "${userInfo["full_name"]}",
+                                        maxLines: 2,
+                                        style: TextStyle(fontSize: 17),
                                       ),
-                                      decoration: new BoxDecoration(
-                                        color: Colors.grey, // border color
-                                        shape: BoxShape.circle,
+                                      SizedBox(
+                                        width: 10,
+                                        height: isLoggedin ? 0 : 20,
                                       ),
-                                    ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    "Hello,",
-                                    style: TextStyle(
-                                        fontSize: 15, color: Colors.black38),
-                                  ),
-                                  Text(
-                                    !isLoggedin
-                                        ? "User"
-                                        : "${userInfo["full_name"]}",
-                                    style: TextStyle(fontSize: 17),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                    height: isLoggedin ? 0 : 20,
-                                  ),
-                                  isLoggedin
-                                      ? Container()
-                                      : Container(
-                                          child: Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              LoginPage()));
-                                                },
-                                                child: Container(
-                                                    padding: EdgeInsets.all(10),
-                                                    decoration: BoxDecoration(
-                                                        color: mainheader,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        border: Border.all(
-                                                            width: 0.1,
-                                                            color: mainheader)),
-                                                    child: Text(
-                                                      "Login",
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                    )),
+                                      isLoggedin
+                                          ? Container()
+                                          : Container(
+                                              child: Row(
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  LoginPage()));
+                                                    },
+                                                    child: Container(
+                                                        padding:
+                                                            EdgeInsets.all(10),
+                                                        decoration: BoxDecoration(
+                                                            color: mainheader,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            border: Border.all(
+                                                                width: 0.1,
+                                                                color:
+                                                                    mainheader)),
+                                                        child: Text(
+                                                          "Login",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                        )),
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  AccountPage()));
+                                                    },
+                                                    child: Container(
+                                                        padding:
+                                                            EdgeInsets.all(10),
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            border: Border.all(
+                                                                width: 0.1,
+                                                                color: Colors
+                                                                    .grey)),
+                                                        child: Text(
+                                                          "Register",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.grey),
+                                                        )),
+                                                  ),
+                                                ],
                                               ),
-                                              SizedBox(width: 10),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              AccountPage()));
-                                                },
-                                                child: Container(
-                                                    padding: EdgeInsets.all(10),
-                                                    decoration: BoxDecoration(
-                                                        color: Colors.white,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        border: Border.all(
-                                                            width: 0.1,
-                                                            color:
-                                                                Colors.grey)),
-                                                    child: Text(
-                                                      "Register",
-                                                      style: TextStyle(
-                                                          color: Colors.grey),
-                                                    )),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                ],
-                              ),
-                            ],
+                                            )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         // Container(
@@ -445,26 +494,88 @@ class HomePageState extends State<HomePage>
       drawer: drawer,
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Center(
-          child: Container(
-            child: Row(
-              children: <Widget>[
-                Container(
-                    margin: EdgeInsets.only(right: 5),
-                    width: 30,
-                    child: Image.asset('assets/logo.jpg')),
-                Text("Easy Shopping",
-                    style: TextStyle(
-                        color: subheader,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold)),
-              ],
+          backgroundColor: Colors.white,
+          title: Center(
+            child: Container(
+              child: Row(
+                children: <Widget>[
+                  Container(
+                      margin: EdgeInsets.only(right: 5),
+                      width: 30,
+                      child: Image.asset('assets/logo.jpg')),
+                  Text("Easy Shopping",
+                      style: TextStyle(
+                          color: subheader,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
-      body: pageOptions[currentIndex],
+          actions: [
+            userInfo == null
+                ? Container()
+                : GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        notifCount = 0;
+                        notification_count = "0";
+                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NotifyPage(notifyList)),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 10),
+                      child: Stack(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(right: 10),
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(Icons.notifications, color: subheader),
+                          ),
+                          notifCount == 0
+                              ? Container()
+                              : Container(
+                                  margin: EdgeInsets.only(left: 20),
+                                  padding: EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                      color: Colors.redAccent,
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Text(notification_count,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.normal)),
+                                )
+                        ],
+                      ),
+                    ),
+                  )
+          ]),
+      body: isoffline
+          ? Center(
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/wireless.png",
+                  width: 120,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  child: Text(
+                    "No internet connected!",
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                  ),
+                ),
+              ],
+            ))
+          : pageOptions[currentIndex],
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
             canvasColor: Colors.white,

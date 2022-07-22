@@ -660,6 +660,14 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
             .hasMatch(_emailController.text);
     if (!emailValid) {
       showAlert("Invalid email");
+    } else if (_fullNameController.text.isEmpty) {
+      showAlert("Fullname field is blank");
+    } else if (_passController.text.isEmpty) {
+      showAlert("Password field is blank");
+    } else if (_conPassController.text.isEmpty) {
+      showAlert("Confirm password field is blank");
+    } else if (_passController.text.length < 8 && _conPassController.text.length < 8) {
+      showAlert("Password must be at least 8 characters");
     } else if (_passController.text != _conPassController.text) {
       showAlert("Password doesn't match");
     } else if (!_phoneController.text.isEmpty &&
@@ -690,11 +698,13 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
         setState(() {
           if (response.body == "Success") {
             showAlert("Account created successfully");
+            selectedPage = 0;
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomePage()));
+          } else if (response.body == "Email exists!") {
+            showAlert("Email exists!");
           }
         });
-        selectedPage = 0;
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
       } else {
         throw Exception('Unable to update user from the REST API');
       }

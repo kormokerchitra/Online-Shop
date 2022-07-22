@@ -560,7 +560,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                                     //color: Colors.grey[200],
                                     //padding: EdgeInsets.all(20),
                                     child: Text(
-                                  "Update Password",
+                                  "New Password",
                                   style: TextStyle(
                                       color: Colors.black54,
                                       fontWeight: FontWeight.bold),
@@ -729,6 +729,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
       showAlert("Invalid Phone number");
     } else if (_userNameController.text.contains(" ")) {
       showAlert("Invalid username");
+    } else if (_fullNameController.text.isEmpty) {
+      showAlert("Fullname field is blank");
     } else {
       setState(() {
         loader = true;
@@ -774,7 +776,13 @@ class _EditProfileFormState extends State<EditProfileForm> {
   }
 
   Future<void> updatePassword() async {
-    if (_passController.text != _conPassController.text) {
+    if (_passController.text.isEmpty) {
+      showAlert("New password field is blank");
+    } else if (_conPassController.text.isEmpty) {
+      showAlert("Confirm password field is blank");
+    } else if (_passController.text.length < 8 && _conPassController.text.length < 8) {
+      showAlert("Password must be at least 8 characters");
+    } else if (_passController.text != _conPassController.text) {
       showAlert("Password doesn't match");
     } else {
       final response =

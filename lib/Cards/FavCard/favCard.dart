@@ -82,7 +82,7 @@ class _FavCardState extends State<FavCard> {
                               Container(
                                 margin: EdgeInsets.only(left: 3),
                                 child: Text(
-                                  "$rating",
+                                  "$rating (${widget.fav_item["rev_count"]})",
                                   style: TextStyle(color: Colors.grey),
                                 ),
                               )

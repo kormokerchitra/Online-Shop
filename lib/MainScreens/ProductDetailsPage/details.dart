@@ -582,7 +582,7 @@ class DetailsPageState extends State<DetailsPage>
                                 Container(
                                   margin: EdgeInsets.only(left: 3),
                                   child: Text(
-                                    widget.product_info["prod_rating"],
+                                    "${widget.product_info["prod_rating"]} (${widget.product_info["rev_count"]})",
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                 )

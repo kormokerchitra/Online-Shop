@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -20,8 +22,11 @@ double totalPrice = 0.0;
 bool isLoggedin = false;
 List userList = [];
 var userInfo;
+StreamSubscription internetconnection;
+bool isoffline = false;
 
-String ip = "http://192.168.100.7/";
+String ip = "http://192.168.100.5/";
+//String ip = "http://192.168.43.23/";
 
 class MyApp extends StatefulWidget {
   @override
@@ -33,7 +38,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    _checkConnectivityState();
     getuserInfo();
   }
 
@@ -42,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       var user = prefs.getString("user_info");
       print("user - $user");
-      
+
       if (user != null) {
         userInfo = json.decode(user);
         isLoggedin = true;
@@ -50,6 +55,30 @@ class _MyAppState extends State<MyApp> {
     });
     print("userInfo");
     print(userInfo);
+  }
+
+  Future<void> _checkConnectivityState() async {
+    internetconnection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
   }
 
   @override
