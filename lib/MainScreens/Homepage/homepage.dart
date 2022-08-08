@@ -41,6 +41,7 @@ class HomePageState extends State<HomePage>
   String pro_pic = "";
   List notifyList = [];
   int notifCount = 0;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -81,6 +82,7 @@ class HomePageState extends State<HomePage>
       print(notifyBody["notification_list"]);
 
       setState(() {
+        isLoading = false;
         var notifList = notifyBody["notification_list"];
         for (int i = 0; i < notifList.length; i++) {
           print(
@@ -553,29 +555,46 @@ class HomePageState extends State<HomePage>
                         ],
                       ),
                     ),
-                  )
-          ]),
-      body: isoffline
-          ? Center(
-              child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/wireless.png",
-                  width: 120,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  child: Text(
-                    "No internet connected!",
-                    style: TextStyle(fontSize: 20, color: Colors.black),
                   ),
-                ),
-              ],
-            ))
-          : pageOptions[currentIndex],
+            isLoggedin
+                ? GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      getNotification();
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(Icons.refresh_outlined, color: subheader),
+                    ),
+                  )
+                : Container()
+          ]),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : isoffline
+              ? Center(
+                  child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "assets/wireless.png",
+                      width: 120,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      child: Text(
+                        "No internet connected!",
+                        style: TextStyle(fontSize: 20, color: Colors.black),
+                      ),
+                    ),
+                  ],
+                ))
+              : pageOptions[currentIndex],
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
             canvasColor: Colors.white,

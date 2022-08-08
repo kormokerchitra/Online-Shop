@@ -84,7 +84,7 @@ class SearchPageState extends State<SearchPage>
                       Icons.search,
                       color: Colors.black38,
                     ),
-                    hintText: 'Search here...',
+                    hintText: 'Search product here...',
                     contentPadding: EdgeInsets.fromLTRB(0.0, 10.0, 20.0, 10.0),
                     border: InputBorder.none,
                   ),

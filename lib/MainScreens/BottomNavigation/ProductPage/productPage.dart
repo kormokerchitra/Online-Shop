@@ -9,6 +9,7 @@ import 'package:online_shopping/Cards/RecommendedCard/recommendedCard.dart';
 import 'package:online_shopping/Cards/TrendingCard/trendingCard.dart';
 import 'package:online_shopping/MainScreens/AllProductPage/allProductPage.dart';
 import 'package:online_shopping/MainScreens/AllRecommendedList/allRecommendedList.dart';
+import 'package:online_shopping/MainScreens/AllTrendingList/allTrendingList.dart';
 import 'package:online_shopping/MainScreens/DiscountProductList/discountProductList.dart';
 import 'package:online_shopping/MainScreens/NavigationDrawerPages/CategoryPage/category.dart';
 import 'package:online_shopping/MainScreens/NewArrivalProductList/newArrivalProductList.dart';
@@ -31,7 +32,13 @@ class ProductPageState extends State<ProductPage>
   Animation<double> animation;
   AnimationController controller;
   var categoryList = [], productBody;
-  var prodList = [], discList = [], recomList = [], tempList = [];
+  var prodList = [],
+      newprodList = [],
+      discList = [],
+      recomList = [],
+      orderProductList = [],
+      tempList = [],
+      tempProductList = [];
   int discountCount = 0;
 
   @override
@@ -39,6 +46,7 @@ class ProductPageState extends State<ProductPage>
     super.initState();
     fetchCategory();
     fetchProduct();
+    fetchOrderProduct();
   }
 
   Future<void> fetchCategory() async {
@@ -76,8 +84,10 @@ class ProductPageState extends State<ProductPage>
         for (int i = 0; i < cc; i++) {
           prodList.add(productBody["product_list"][i]);
         }
+        
         for (int i = 0; i < productBody["product_list"].length; i++) {
           tempList.add(productBody["product_list"][i]);
+          //prodList.sort((a, b) => b["prod_id"].compareTo(a["prod_id"]));
         }
         fetchDiscount();
         fetchRecommended();
@@ -86,6 +96,66 @@ class ProductPageState extends State<ProductPage>
       print(prodList.length);
     } else {
       throw Exception('Unable to fetch products from the REST API');
+    }
+  }
+
+  Future<void> fetchOrderProduct() async {
+    final response = await http.get(ip + 'easy_shopping/order_product_all.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      var productBody = json.decode(response.body);
+      print(productBody["list"]);
+      setState(() {
+        for (int i = 0; i < productBody["list"].length; i++) {
+          if (!tempProductList.contains(productBody["list"][i]["prod_id"])) {
+            tempProductList.add(productBody["list"][i]["prod_id"]);
+          }
+        }
+      });
+      print("tempProductList");
+      print(tempProductList);
+
+      for (int i = 0; i < tempProductList.length; i++) {
+        String id = tempProductList[i];
+        final response1 = await http.post(
+            ip + 'easy_shopping/order_product_count.php',
+            body: {"prod_id": "$id"});
+        print(id);
+        if (response1.statusCode == 200) {
+          print(response1.body);
+          var dataCount = json.decode(response1.body);
+          print("$id / $dataCount");
+
+          final response = await http.post(
+              ip + 'easy_shopping/product_search.php',
+              body: {"product_name": "$id"});
+          print(id);
+          if (response.statusCode == 200) {
+            print(response.body);
+            productBody = json.decode(response.body);
+            print(productBody["product_list"]);
+            setState(() {
+              int cc = productBody["product_list"].length;
+              print("cc");
+              print(cc);
+              orderProductList.add({
+                "fullBody": productBody["product_list"][0],
+                "count": dataCount
+              });
+            });
+          } else {
+            throw Exception('Unable to fetch products from the REST API');
+          }
+        } else {
+          throw Exception('Unable to fetch products from the REST API');
+        }
+      }
+
+      orderProductList.sort((a, b) => b["count"].compareTo(a["count"]));
+      print("orderProductList");
+      print(orderProductList);
+    } else {
+      throw Exception('Unable to fetch category from the REST API');
     }
   }
 
@@ -251,10 +321,13 @@ class ProductPageState extends State<ProductPage>
                           child: Text("No data available!",
                               style: TextStyle(color: Colors.grey)))
                       : new ListView.builder(
+                          //reverse: true,
                           physics: BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (BuildContext context, int index) =>
                               ////// <<<<< New Arrival Card >>>>> //////
+                              //int itemCount = prodList.length;
+                              //int reversedIndex = itemCount - 1 - index;
                               NewArrivalCard(prodList[index]),
                           itemCount: prodList.length,
                         ),
@@ -371,6 +444,81 @@ class ProductPageState extends State<ProductPage>
                             prod_item: discList[index],
                           ),
                           itemCount: discList.length,
+                        ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: EdgeInsets.only(top: 20, left: 20, right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          "Top Selling",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AllTrendingPage()));
+                          },
+                          child: Container(
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  "Show All",
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.black45),
+                                ),
+                                Icon(Icons.chevron_right, color: Colors.black45)
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )),
+                SizedBox(
+                  height: 10,
+                ),
+                ////// <<<<< Top Selling List >>>>> //////
+                // Container(
+                //   margin: EdgeInsets.only(left: 0, right: 0),
+                //   color: sub_white,
+                //   width: MediaQuery.of(context).size.width,
+                //   padding: EdgeInsets.only(left: 10),
+                //   height: 210,
+                //   child: new ListView.builder(
+                //     scrollDirection: Axis.horizontal,
+                //     itemBuilder: (BuildContext context, int index) =>
+                //         ////// <<<<< Top Selling Card >>>>> //////
+                //         TrendingCard(prodList[index]),
+                //     itemCount: prodList.length,
+                //   ),
+                // ),
+                Container(
+                  margin: EdgeInsets.only(left: 0, right: 0),
+                  color: sub_white,
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.only(left: 10),
+                  height: orderProductList.length == 0 ? 50 : 270,
+                  child: orderProductList.length == 0
+                      ? Center(
+                          child: Text("No data available!",
+                              style: TextStyle(color: Colors.grey)))
+                      : new ListView.builder(
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (BuildContext context, int index) =>
+                              ////// <<<<< Top Selling Card >>>>> //////
+                              // NewArrivalCard(
+                              //     orderProductList[index]["fullBody"]),
+                              TrendingCard(
+                                prod_item: orderProductList[index]["fullBody"]),
+                          itemCount: orderProductList.length,
                         ),
                 ),
                 SizedBox(

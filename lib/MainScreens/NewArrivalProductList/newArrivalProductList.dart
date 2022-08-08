@@ -84,7 +84,9 @@ class NewArrivalProductListState extends State<NewArrivalProductList>
                 )
               : ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
-                    return AllProductCard(prod_item: prodList[index]);
+                    int itemCount = prodList.length;
+                    int reversedIndex = itemCount - 1 - index;
+                    return AllProductCard(prod_item: prodList[reversedIndex]);
                   },
                   itemCount: prodList.length,
                 ),

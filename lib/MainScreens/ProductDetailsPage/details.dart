@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
+import 'package:online_shopping/ComapreItem/compareItem.dart';
 import 'package:online_shopping/MainScreens/CheckoutPage/checkout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class DetailsPageState extends State<DetailsPage>
   Animation<double> animation;
   AnimationController controller;
   bool _isLoggedIn = false;
-  String _debugLabelString = "", review = '', _ratingStatus = '';
+  String _debugLabelString = "", review = '', _ratingStatus = '', rating = "0.0";
   bool _requireConsent = false, isfav = false, reviewAvailable = false;
   CarouselSlider carouselSlider;
   int _current = 0,
@@ -71,6 +72,9 @@ class DetailsPageState extends State<DetailsPage>
         widget.product_info["product_price"],
         widget.product_info["prod_discount"]);
     quantity = int.parse(widget.product_info["prod_quantity"]);
+
+    double proRating = double.parse(widget.product_info["prod_rating"]);
+    rating = "${proRating.toStringAsFixed(2)}";
   }
 
   int _rating = 0;
@@ -582,7 +586,8 @@ class DetailsPageState extends State<DetailsPage>
                                 Container(
                                   margin: EdgeInsets.only(left: 3),
                                   child: Text(
-                                    "${widget.product_info["prod_rating"]} (${widget.product_info["rev_count"]})",
+                                    // "${widget.product_info["prod_rating"]} (${widget.product_info["rev_count"]})",
+                                    "$rating (${widget.product_info["rev_count"]})",
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                 )
@@ -985,6 +990,40 @@ class DetailsPageState extends State<DetailsPage>
                 //     ],
                 //   ),
                 // ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.only(left: 20, right: 20, top: 5),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      color: Colors.white,
+                      border: Border.all(width: 0.2, color: Colors.grey)),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  CompareItem(widget.product_info)));
+                    },
+                    child: Container(
+                        margin: EdgeInsets.all(5),
+                        padding: EdgeInsets.all(10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                            color: mainheader,
+                            border: Border.all(width: 0.2, color: Colors.grey)),
+                        child: Text(
+                          "Add to compare",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold),
+                        )),
+                  ),
+                ),
                 Container(
                   width: MediaQuery.of(context).size.width,
                   margin: EdgeInsets.only(left: 20, right: 20, top: 5),
