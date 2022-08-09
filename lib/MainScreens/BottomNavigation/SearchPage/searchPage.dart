@@ -20,13 +20,37 @@ class SearchPageState extends State<SearchPage>
   AnimationController controller;
   String result = '';
   TextEditingController searchController = TextEditingController();
-  var productBody;
-  var prodList = [];
+  var productBody, keywordBody;
+  var prodList = [], keyWordList = [];
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    fetchKeyword();
+  }
+
+  Future<void> fetchKeyword() async {
+    final response = await http.post(ip + 'easy_shopping/keyword_list.php',
+        body: {"user_id": "${userInfo["user_id"]}"});
+    if (response.statusCode == 200) {
+      print(response.body);
+      keywordBody = json.decode(response.body);
+      print(keywordBody["keyword_list"]);
+      setState(() {
+        keyWordList = [];
+        int cc = keywordBody["keyword_list"].length;
+        print("cc");
+        print(cc);
+        for (int i = 0; i < cc; i++) {
+          keyWordList.add(keywordBody["keyword_list"][i]);
+        }
+      });
+      print("keyWordList.length");
+      print(keyWordList.length);
+    } else {
+      throw Exception('Unable to fetch products from the REST API');
+    }
   }
 
   Future<void> fetchProduct(String name) async {
@@ -49,6 +73,38 @@ class SearchPageState extends State<SearchPage>
       });
       print("prodList.length");
       print(prodList.length);
+    } else {
+      throw Exception('Unable to fetch products from the REST API');
+    }
+  }
+
+  Future<void> addKeyword(String key) async {
+    final response =
+        await http.post(ip + 'easy_shopping/keyword_save.php', body: {
+      "keyword": "$key",
+      "user_id": "${userInfo["user_id"]}",
+    });
+    print(key);
+    if (response.statusCode == 200) {
+      print(response.body);
+      if (response.body == "Success") {}
+    } else {
+      throw Exception('Unable to fetch products from the REST API');
+    }
+  }
+
+  Future<void> deleteKeyword(String key) async {
+    final response =
+        await http.post(ip + 'easy_shopping/keyword_delete.php', body: {
+      "keyword": "$key",
+      "user_id": "${userInfo["user_id"]}",
+    });
+    print(key);
+    if (response.statusCode == 200) {
+      print(response.body);
+      if (response.body == "Success") {
+        fetchKeyword();
+      }
     } else {
       throw Exception('Unable to fetch products from the REST API');
     }
@@ -80,23 +136,26 @@ class SearchPageState extends State<SearchPage>
                   controller: searchController,
                   autofocus: false,
                   decoration: InputDecoration(
-                    icon: const Icon(
-                      Icons.search,
-                      color: Colors.black38,
-                    ),
-                    hintText: 'Search product here...',
-                    contentPadding: EdgeInsets.fromLTRB(0.0, 10.0, 20.0, 10.0),
-                    border: InputBorder.none,
-                  ),
-                  onChanged: (val) {
-                    if (val != "") {
-                      setState(() {
-                        isLoading = true;
-                        result = val;
-                      });
-                      fetchProduct(result);
-                    }
-                  },
+                      icon: const Icon(
+                        Icons.search,
+                        color: Colors.black38,
+                      ),
+                      hintText: 'Search product here...',
+                      contentPadding:
+                          EdgeInsets.fromLTRB(0.0, 10.0, 20.0, 10.0),
+                      border: InputBorder.none,
+                      suffixIcon: GestureDetector(
+                          onTap: () {
+                            if (searchController.text != "") {
+                              setState(() {
+                                isLoading = true;
+                                result = searchController.text;
+                              });
+                              addKeyword(result);
+                              fetchProduct(result);
+                            }
+                          },
+                          child: Icon(Icons.send, color: mainheader))),
                 ),
               ),
               SizedBox(
@@ -104,13 +163,31 @@ class SearchPageState extends State<SearchPage>
               ),
               prodList.length == 0
                   ? Container()
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        "${prodList.length} items found",
-                        style: TextStyle(color: mainheader),
-                      ),
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            fetchKeyword();
+                            searchController.clear();
+                            prodList = [];
+                          },
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              "Clear search",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            "${prodList.length} items found",
+                            style: TextStyle(color: mainheader),
+                          ),
+                        ),
+                      ],
                     ),
               prodList.length == 0
                   ? Container()
@@ -120,11 +197,65 @@ class SearchPageState extends State<SearchPage>
               isLoading
                   ? Center(child: CircularProgressIndicator())
                   : prodList.length == 0
-                      ? Center(
-                          child: Container(
-                            child: Text("No items found!"),
-                          ),
-                        )
+                      ? keyWordList.length == 0
+                          ? Center(
+                              child: Container(
+                                child: Text("No items found!"),
+                              ),
+                            )
+                          : Flexible(
+                              child: SingleChildScrollView(
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Wrap(
+                                      alignment: WrapAlignment.start,
+                                      children: List.generate(
+                                          keyWordList.length, (index) {
+                                        return GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              searchController.text =
+                                                  keyWordList[index]["keyword"];
+                                            });
+                                            fetchProduct(
+                                                keyWordList[index]["keyword"]);
+                                          },
+                                          child: Container(
+                                              margin: EdgeInsets.only(
+                                                  right: 10, top: 10),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.grey[100],
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20)),
+                                              child: Wrap(
+                                                alignment: WrapAlignment.center,
+                                                children: [
+                                                  Text(keyWordList[index]
+                                                      ["keyword"]),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      deleteKeyword(
+                                                          keyWordList[index]
+                                                              ["keyword"]);
+                                                    },
+                                                    child: Container(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                left: 10),
+                                                        child: Icon(
+                                                          Icons.close,
+                                                          size: 19,
+                                                        )),
+                                                  )
+                                                ],
+                                              )),
+                                        );
+                                      })),
+                                ),
+                              ),
+                            )
                       : Flexible(
                           child: SingleChildScrollView(
                             child: Container(

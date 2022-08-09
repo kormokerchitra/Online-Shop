@@ -82,6 +82,7 @@ class HomePageState extends State<HomePage>
       print(notifyBody["notification_list"]);
 
       setState(() {
+        notifyList = [];
         isLoading = false;
         var notifList = notifyBody["notification_list"];
         for (int i = 0; i < notifList.length; i++) {

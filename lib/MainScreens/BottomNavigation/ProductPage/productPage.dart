@@ -6,9 +6,11 @@ import 'package:online_shopping/Cards/CategoryCard/categoryCard.dart';
 import 'package:online_shopping/Cards/DiscountCard/discountCard.dart';
 import 'package:online_shopping/Cards/NewArrivalCard/newArrivalCard.dart';
 import 'package:online_shopping/Cards/RecommendedCard/recommendedCard.dart';
+import 'package:online_shopping/Cards/TopRatedCard/topRatedCard.dart';
 import 'package:online_shopping/Cards/TrendingCard/trendingCard.dart';
 import 'package:online_shopping/MainScreens/AllProductPage/allProductPage.dart';
 import 'package:online_shopping/MainScreens/AllRecommendedList/allRecommendedList.dart';
+import 'package:online_shopping/MainScreens/AllTopRatedList/allTopRatedList.dart';
 import 'package:online_shopping/MainScreens/AllTrendingList/allTrendingList.dart';
 import 'package:online_shopping/MainScreens/DiscountProductList/discountProductList.dart';
 import 'package:online_shopping/MainScreens/NavigationDrawerPages/CategoryPage/category.dart';
@@ -35,6 +37,7 @@ class ProductPageState extends State<ProductPage>
   var prodList = [],
       newprodList = [],
       discList = [],
+      topRatedList = [],
       recomList = [],
       orderProductList = [],
       tempList = [],
@@ -90,6 +93,7 @@ class ProductPageState extends State<ProductPage>
           //prodList.sort((a, b) => b["prod_id"].compareTo(a["prod_id"]));
         }
         fetchDiscount();
+        fetchTopRated();
         fetchRecommended();
       });
       print("prodList.length");
@@ -180,6 +184,32 @@ class ProductPageState extends State<ProductPage>
       }
 
       print("discountCount - $discountCount");
+    });
+  }
+
+  Future<void> fetchTopRated() async {
+    List newList = [];
+    setState(() {
+      int tempCount = tempList.length;
+      print("tempCount");
+      print(tempCount);
+      for (int i = 0; i < tempCount; i++) {
+        double rating = double.parse(tempList[i]["prod_rating"]);
+        if (rating >= 4) {
+          newList.add(tempList[i]);
+        }
+      }
+
+      print("newList chk - ${newList.length}");
+
+      int first5 = newList.take(5).length;
+      print("first5");
+      print(first5);
+      for (int i = 0; i < first5; i++) {
+        topRatedList.add(newList[i]);
+      }
+
+      print("TopRatedCount - ${topRatedList.length}");
     });
   }
 
@@ -519,6 +549,68 @@ class ProductPageState extends State<ProductPage>
                               TrendingCard(
                                 prod_item: orderProductList[index]["fullBody"]),
                           itemCount: orderProductList.length,
+                        ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: EdgeInsets.only(top: 20, left: 20, right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          "Top Rated",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        AllTopRatedPage()));
+                          },
+                          child: Container(
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  "Show All",
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.black45),
+                                ),
+                                Icon(Icons.chevron_right, color: Colors.black45)
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )),
+                SizedBox(
+                  height: 10,
+                ),
+                ////// <<<<< Top Rated List >>>>> //////
+                Container(
+                  margin: EdgeInsets.only(left: 0, right: 0),
+                  color: sub_white,
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.only(left: 10),
+                  height: prodList.length == 0 ? 50 : 270,
+                  child: prodList.length == 0
+                      ? Center(
+                          child: Text("No data available!",
+                              style: TextStyle(color: Colors.grey)))
+                      : new ListView.builder(
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (BuildContext context, int index) {
+                            ////// <<<<< Top Rated Card >>>>> //////
+                            return TopRatedCard(
+                              prod_item: topRatedList[index],
+                            );
+                          },
+                          itemCount: topRatedList.length,
                         ),
                 ),
                 SizedBox(
