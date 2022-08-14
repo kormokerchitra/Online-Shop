@@ -120,7 +120,7 @@ class _FavCardState extends State<FavCard> {
                                           ),
                                         ),
                                   Text(
-                                    "Tk. ${widget.fav_item["product_price"]}",
+                                    "Tk. ${widget.fav_item["product_price"]} (${widget.fav_item["prod_discount"]}%)",
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.black87,

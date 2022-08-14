@@ -21,32 +21,56 @@ class AllRecommendedPageState extends State<AllRecommendedPage>
   Animation<double> animation;
   AnimationController controller;
   int count = 0;
-  var prodList = [];
+  var prodList = [],
+      tempRecommendedList = [], recomList = [];
 
   @override
   void initState() {
     super.initState();
-    fetchProduct();
+    fetchRecommended();
   }
 
-  Future<void> fetchProduct() async {
-    final response = await http.get(ip + 'easy_shopping/product_list.php');
+  Future<void> fetchRecommended() async {
+    final response = await http.post(
+        ip + 'easy_shopping/keyword_product_list.php',
+        body: {"user_id": "${userInfo["user_id"]}"});
     if (response.statusCode == 200) {
       print(response.body);
       var productBody = json.decode(response.body);
-      print(productBody["product_list"]);
-      setState(() {
-        for (int i = 0; i < productBody["product_list"].length; i++) {
-          double rating =
-              double.parse(productBody["product_list"][i]["prod_rating"]);
-          if (rating >= 4) {
-            prodList.add(productBody["product_list"][i]);
-          }
+      print(productBody["product_key_list"]);
+      for (int i = 0; i < productBody["product_key_list"].length; i++) {
+        if (!tempRecommendedList
+            .contains(productBody["product_key_list"][i]["prod_id"])) {
+          tempRecommendedList
+              .add(productBody["product_key_list"][i]["prod_id"]);
         }
-      });
-      print(prodList.length);
+      }
+
+      print("tempRecommendedList");
+      print(tempRecommendedList);
+
+      for (int i = 0; i < tempRecommendedList.length; i++) {
+        String id = tempRecommendedList[i];
+        print("proid - $id");
+        final response = await http.post(
+            ip + 'easy_shopping/product_search_id.php',
+            body: {"product_name": "$id"});
+        print(id);
+        if (response.statusCode == 200) {
+          print(response.body);
+          productBody = json.decode(response.body);
+          print(productBody["product_list"]);
+          setState(() {
+            recomList.add(productBody["product_list"][0]);
+          });
+        } else {
+          throw Exception('Unable to fetch products from the REST API');
+        }
+
+        print("recomList - ${recomList[i]}");
+      }
     } else {
-      throw Exception('Unable to fetch products from the REST API');
+      throw Exception('Unable to fetch category from the REST API');
     }
   }
 
@@ -82,7 +106,7 @@ class AllRecommendedPageState extends State<AllRecommendedPage>
           margin: EdgeInsets.only(left: 0, right: 0, top: 0),
           color: sub_white,
           width: MediaQuery.of(context).size.width,
-          child: prodList.length == 0
+          child: recomList.length == 0
               ? Center(
                   child: Container(
                     child: Text("No data available!"),
@@ -90,9 +114,9 @@ class AllRecommendedPageState extends State<AllRecommendedPage>
                 )
               : ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
-                    return AllProductCard(prod_item: prodList[index]);
+                    return AllProductCard(prod_item: recomList[index]);
                   },
-                  itemCount: prodList.length,
+                  itemCount: recomList.length,
                 ),
         ),
       ),

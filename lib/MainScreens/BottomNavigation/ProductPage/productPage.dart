@@ -33,15 +33,16 @@ class ProductPageState extends State<ProductPage>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
-  var categoryList = [], productBody;
+  var categoryList = [], productBody, newArrivalBody;
   var prodList = [],
-      newprodList = [],
+      newProdList = [],
       discList = [],
       topRatedList = [],
       recomList = [],
       orderProductList = [],
       tempList = [],
-      tempProductList = [];
+      tempProductList = [],
+      tempRecommendedList = [];
   int discountCount = 0;
 
   @override
@@ -49,7 +50,11 @@ class ProductPageState extends State<ProductPage>
     super.initState();
     fetchCategory();
     fetchProduct();
+    fetchNewArraivalProduct();
     fetchOrderProduct();
+    if (userInfo != null) {
+      fetchRecommended();
+    }
   }
 
   Future<void> fetchCategory() async {
@@ -87,17 +92,39 @@ class ProductPageState extends State<ProductPage>
         for (int i = 0; i < cc; i++) {
           prodList.add(productBody["product_list"][i]);
         }
-        
+
         for (int i = 0; i < productBody["product_list"].length; i++) {
           tempList.add(productBody["product_list"][i]);
           //prodList.sort((a, b) => b["prod_id"].compareTo(a["prod_id"]));
         }
         fetchDiscount();
         fetchTopRated();
-        fetchRecommended();
       });
       print("prodList.length");
       print(prodList.length);
+    } else {
+      throw Exception('Unable to fetch products from the REST API');
+    }
+  }
+
+  Future<void> fetchNewArraivalProduct() async {
+    final response = await http.get(ip + 'easy_shopping/new_arrival_card.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      newArrivalBody = json.decode(response.body);
+      print(newArrivalBody["product_list"]);
+      setState(() {
+        int cc = newArrivalBody["product_list"].length <= 5
+            ? newArrivalBody["product_list"].length
+            : 5;
+        print("cc");
+        print(cc);
+        for (int i = 0; i < cc; i++) {
+          newProdList.add(newArrivalBody["product_list"][i]);
+        }
+      });
+      print("newprodList.length");
+      print(newProdList.length);
     } else {
       throw Exception('Unable to fetch products from the REST API');
     }
@@ -214,29 +241,48 @@ class ProductPageState extends State<ProductPage>
   }
 
   Future<void> fetchRecommended() async {
-    List newList = [];
-    setState(() {
-      int tempCount = tempList.length;
-      print("tempCount");
-      print(tempCount);
-      for (int i = 0; i < tempCount; i++) {
-        double rating = double.parse(tempList[i]["prod_rating"]);
-        if (rating >= 4) {
-          newList.add(tempList[i]);
+    final response = await http.post(
+        ip + 'easy_shopping/keyword_product_list.php',
+        body: {"user_id": "${userInfo["user_id"]}"});
+    if (response.statusCode == 200) {
+      print(response.body);
+      var productBody = json.decode(response.body);
+      print(productBody["product_key_list"]);
+      for (int i = 0; i < productBody["product_key_list"].length; i++) {
+        if (!tempRecommendedList
+            .contains(productBody["product_key_list"][i]["prod_id"])) {
+          tempRecommendedList
+              .add(productBody["product_key_list"][i]["prod_id"]);
         }
       }
 
-      print("newList chk - ${newList.length}");
+      print("tempRecommendedList");
+      print(tempRecommendedList);
 
-      int first5 = newList.take(5).length;
-      print("first5");
-      print(first5);
+      int first5 = tempRecommendedList.take(5).length;
       for (int i = 0; i < first5; i++) {
-        recomList.add(newList[i]);
-      }
+        String id = tempRecommendedList[i];
+        print("proid - $id");
+        final response = await http.post(
+            ip + 'easy_shopping/product_search_id.php',
+            body: {"product_name": "$id"});
+        print(id);
+        if (response.statusCode == 200) {
+          print(response.body);
+          productBody = json.decode(response.body);
+          print(productBody["product_list"]);
+          setState(() {
+            recomList.add(productBody["product_list"][0]);
+          });
+        } else {
+          throw Exception('Unable to fetch products from the REST API');
+        }
 
-      print("recommendedCount - ${recomList.length}");
-    });
+        print("recomList - ${recomList[i]}");
+      }
+    } else {
+      throw Exception('Unable to fetch category from the REST API');
+    }
   }
 
   @override
@@ -345,8 +391,8 @@ class ProductPageState extends State<ProductPage>
                   color: sub_white,
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.only(left: 10),
-                  height: prodList.length == 0 ? 50 : 270,
-                  child: prodList.length == 0
+                  height: newProdList.length == 0 ? 50 : 270,
+                  child: newProdList.length == 0
                       ? Center(
                           child: Text("No data available!",
                               style: TextStyle(color: Colors.grey)))
@@ -356,10 +402,10 @@ class ProductPageState extends State<ProductPage>
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (BuildContext context, int index) =>
                               ////// <<<<< New Arrival Card >>>>> //////
-                              //int itemCount = prodList.length;
+                              //int itemCount = newprodList.length;
                               //int reversedIndex = itemCount - 1 - index;
-                              NewArrivalCard(prodList[index]),
-                          itemCount: prodList.length,
+                              NewArrivalCard(newProdList[index]),
+                          itemCount: newProdList.length,
                         ),
                 ),
                 // SizedBox(
@@ -547,7 +593,8 @@ class ProductPageState extends State<ProductPage>
                               // NewArrivalCard(
                               //     orderProductList[index]["fullBody"]),
                               TrendingCard(
-                                prod_item: orderProductList[index]["fullBody"]),
+                                  prod_item: orderProductList[index]
+                                      ["fullBody"]),
                           itemCount: orderProductList.length,
                         ),
                 ),
@@ -569,8 +616,7 @@ class ProductPageState extends State<ProductPage>
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        AllTopRatedPage()));
+                                    builder: (context) => AllTopRatedPage()));
                           },
                           child: Container(
                             child: Row(
@@ -616,65 +662,72 @@ class ProductPageState extends State<ProductPage>
                 SizedBox(
                   height: 10,
                 ),
-                Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.only(top: 20, left: 20, right: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          "Recommended",
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        AllRecommendedPage()));
-                          },
-                          child: Container(
-                            child: Row(
-                              children: <Widget>[
-                                Text(
-                                  "Show All",
-                                  style: TextStyle(
-                                      fontSize: 15, color: Colors.black45),
-                                ),
-                                Icon(Icons.chevron_right, color: Colors.black45)
-                              ],
+                recomList.length == 0 || userInfo == null
+                    ? Container()
+                    : Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(top: 20, left: 20, right: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              "Recommended",
+                              style: TextStyle(fontSize: 20),
                             ),
-                          ),
-                        ),
-                      ],
-                    )),
-                SizedBox(
-                  height: 10,
-                ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            AllRecommendedPage()));
+                              },
+                              child: Container(
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(
+                                      "Show All",
+                                      style: TextStyle(
+                                          fontSize: 15, color: Colors.black45),
+                                    ),
+                                    Icon(Icons.chevron_right,
+                                        color: Colors.black45)
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
+                recomList.length == 0 || userInfo == null
+                    ? Container()
+                    : SizedBox(
+                        height: 10,
+                      ),
                 ////// <<<<< Recommended List >>>>> //////
-                Container(
-                  margin: EdgeInsets.only(left: 0, right: 0),
-                  color: sub_white,
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.only(left: 10),
-                  height: prodList.length == 0 ? 50 : 270,
-                  child: prodList.length == 0
-                      ? Center(
-                          child: Text("No data available!",
-                              style: TextStyle(color: Colors.grey)))
-                      : new ListView.builder(
-                          physics: BouncingScrollPhysics(),
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: (BuildContext context, int index) {
-                            ////// <<<<< Recommended Card >>>>> //////
-                            return RecommendedCard(
-                              recomList[index],
-                            );
-                          },
-                          itemCount: recomList.length,
-                        ),
-                ),
+                recomList.length == 0 || userInfo == null
+                    ? Container()
+                    : Container(
+                        margin: EdgeInsets.only(left: 0, right: 0),
+                        color: sub_white,
+                        width: MediaQuery.of(context).size.width,
+                        padding: EdgeInsets.only(left: 10),
+                        height: prodList.length == 0 ? 50 : 270,
+                        child: prodList.length == 0
+                            ? Center(
+                                child: Text("No data available!",
+                                    style: TextStyle(color: Colors.grey)))
+                            : new ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (BuildContext context, int index) {
+                                  ////// <<<<< Recommended Card >>>>> //////
+                                  return RecommendedCard(
+                                    recomList[index],
+                                  );
+                                },
+                                itemCount: recomList.length,
+                              ),
+                      ),
               ],
             ),
           ),

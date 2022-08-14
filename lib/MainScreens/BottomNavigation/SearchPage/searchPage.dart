@@ -27,7 +27,9 @@ class SearchPageState extends State<SearchPage>
   @override
   void initState() {
     super.initState();
-    fetchKeyword();
+    if (userInfo != null) {
+      fetchKeyword();
+    }
   }
 
   Future<void> fetchKeyword() async {
@@ -87,7 +89,11 @@ class SearchPageState extends State<SearchPage>
     print(key);
     if (response.statusCode == 200) {
       print(response.body);
-      if (response.body == "Success") {}
+      if (response.body == "Success") {
+        setState(() {
+          isLoading = false;
+        });
+      }
     } else {
       throw Exception('Unable to fetch products from the REST API');
     }
@@ -151,7 +157,9 @@ class SearchPageState extends State<SearchPage>
                                 isLoading = true;
                                 result = searchController.text;
                               });
-                              addKeyword(result);
+                              if (userInfo != null) {
+                                addKeyword(result);
+                              }
                               fetchProduct(result);
                             }
                           },
@@ -168,9 +176,14 @@ class SearchPageState extends State<SearchPage>
                       children: [
                         GestureDetector(
                           onTap: () {
-                            fetchKeyword();
-                            searchController.clear();
-                            prodList = [];
+                            if (userInfo != null) {
+                              fetchKeyword();
+                            }
+
+                            setState(() {
+                              searchController.clear();
+                              prodList = [];
+                            });
                           },
                           child: Container(
                             alignment: Alignment.centerRight,

@@ -41,13 +41,14 @@ class HomePageState extends State<HomePage>
   String pro_pic = "";
   List notifyList = [];
   int notifCount = 0;
-  bool isLoading = true;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     print(userID);
     if (userInfo != null) {
+      isLoading = true;
       pro_pic = "${userInfo["pro_pic"]}";
       getNotification();
     }

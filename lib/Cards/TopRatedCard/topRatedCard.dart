@@ -76,7 +76,7 @@ class _TopRatedCardState extends State<TopRatedCard> {
                             color: mainheader,
                             border: Border.all(width: 0.2, color: Colors.grey)),
                         child: Icon(
-                          Icons.star_border_purple500_rounded,
+                          Icons.local_fire_department,
                           color: Colors.white,
                           size: 16,
                         ),

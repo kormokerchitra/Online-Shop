@@ -19,6 +19,8 @@ class _AllCouponPageState extends State<AllCouponPage> {
   TextEditingController vDateController1 = new TextEditingController();
   TextEditingController vAmtController = new TextEditingController();
   TextEditingController vAmtController1 = new TextEditingController();
+  TextEditingController vExpAmtController = new TextEditingController();
+  TextEditingController vExpAmtController1 = new TextEditingController();
   TextEditingController vStatusController1 = new TextEditingController();
   List couponListActive = [], couponListUsed = [];
   bool isLoading = true;
@@ -208,7 +210,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "${couponListActive[index]["voucher_name"]}",
+                                                    "#${couponListActive[index]["voucher_name"]}",
                                                     style: TextStyle(
                                                         color: Colors.grey,
                                                         fontSize: 18,
@@ -219,7 +221,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                     margin:
                                                         EdgeInsets.only(top: 5),
                                                     child: Text(
-                                                      "Discount amount: Tk. ${couponListActive[index]["voucher_amount"]}",
+                                                      "Voucher Amount: Tk. ${couponListActive[index]["voucher_amount"]}",
                                                       style: TextStyle(
                                                           color: Colors.grey,
                                                           fontWeight: FontWeight
@@ -230,7 +232,18 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                     margin:
                                                         EdgeInsets.only(top: 5),
                                                     child: Text(
-                                                      "Date: ${couponListActive[index]["vou_exp_date"]}",
+                                                      "Voucher Expire Date: ${couponListActive[index]["vou_exp_date"]}",
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontWeight: FontWeight
+                                                              .normal),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    margin:
+                                                        EdgeInsets.only(top: 5),
+                                                    child: Text(
+                                                      "Voucher Expected Amount: Tk. ${couponListActive[index]["voucher_exp_amount"]}",
                                                       style: TextStyle(
                                                           color: Colors.grey,
                                                           fontWeight: FontWeight
@@ -317,7 +330,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                     margin:
                                                         EdgeInsets.only(top: 5),
                                                     child: Text(
-                                                      "Discount amount: Tk. ${couponListUsed[index]["voucher_amount"]}",
+                                                      "Voucher Amount: Tk. ${couponListUsed[index]["voucher_amount"]}",
                                                       style: TextStyle(
                                                           color: Colors.grey
                                                               .withOpacity(0.5),
@@ -329,7 +342,19 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                     margin:
                                                         EdgeInsets.only(top: 5),
                                                     child: Text(
-                                                      "Date: ${couponListUsed[index]["vou_exp_date"]}",
+                                                      "Voucher Expire Date: ${couponListUsed[index]["vou_exp_date"]}",
+                                                      style: TextStyle(
+                                                          color: Colors.grey
+                                                              .withOpacity(0.5),
+                                                          fontWeight: FontWeight
+                                                              .normal),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    margin:
+                                                        EdgeInsets.only(top: 5),
+                                                    child: Text(
+                                                      "Voucher Expected Amount: Tk. ${couponListUsed[index]["voucher_exp_amount"]}",
                                                       style: TextStyle(
                                                           color: Colors.grey
                                                               .withOpacity(0.5),

@@ -25,7 +25,7 @@ var userInfo;
 StreamSubscription internetconnection;
 bool isoffline = false;
 
-String ip = "http://192.168.100.6/";
+String ip = "http://192.168.100.5/";
 //String ip = "http://192.168.43.23/";
 
 class MyApp extends StatefulWidget {
