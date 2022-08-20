@@ -98,6 +98,12 @@ class _CompareItemState extends State<CompareItem> {
       setState(() {
         mainProduct = product;
         searchProduct = null;
+        discountAmt = Utils().getProductDiscount(
+            mainProduct["product_price"], mainProduct["prod_discount"]);
+        quantity = int.parse(mainProduct["prod_quantity"]);
+
+        double proRating = double.parse(mainProduct["prod_rating"]);
+        rating = "${proRating.toStringAsFixed(2)}";
         percentCheck();
       });
     }

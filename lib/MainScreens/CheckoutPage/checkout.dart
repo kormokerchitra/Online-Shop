@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:ui' as prefix0;
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -107,6 +108,8 @@ class CheckoutPageState extends State<CheckoutPage>
 
           for (int i = 0; i < voucherList.length; i++) {
             String voucherExpDate = voucherList[i]["vou_exp_date"];
+            String vMinAmt = voucherList[i]["voucher_exp_amount"];
+            double voucher_min_amt = double.parse(vMinAmt);
 
             List expArr = voucherExpDate.split("-");
             String day = expArr[0];
@@ -121,15 +124,21 @@ class CheckoutPageState extends State<CheckoutPage>
             final bool isExpired = expirationDate.isBefore(now);
 
             if (!isExpired) {
-              String voucherAmt = voucherList[i]["voucher_amount"];
-              couponPrice = double.parse(voucherAmt);
-              payablePrice = (subTotal - couponPrice) + 100;
+              print(voucher_min_amt);
+              print(totalPrice);
+              if (totalPrice > voucher_min_amt) {
+                String voucherAmt = voucherList[i]["voucher_amount"];
+                couponPrice = double.parse(voucherAmt);
+                payablePrice = (subTotal - couponPrice) + 100;
+              } else {
+                showAlert("Voucher cannot be applied to this amount!");
+              }
             } else {
               showAlert("Voucher date expired!");
             }
           }
           _reviewController.clear();
-          showSuccess("Voucher applied successfully!");
+          // showSuccess("Voucher applied successfully!");
         });
       } else {
         throw Exception('Unable to fetch cart from the REST API');

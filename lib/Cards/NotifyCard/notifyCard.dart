@@ -40,7 +40,36 @@ class _NotifyCardState extends State<NotifyCard> {
     } else if (diffDay == 1) {
       dayDiff = "1 day ago";
     } else {
-      dayDiff = "$diffDay days ago";
+      //dayDiff = "$diffDay days ago";
+      if (diffDay > 1 && diffDay <30) {
+        dayDiff = "$diffDay days ago";
+      } else if (diffDay >= 30 && diffDay < 60) {
+        dayDiff = "1 month ago";
+      } else if (diffDay >= 60 && diffDay < 90) {
+        dayDiff = "2 months ago";
+      } else if (diffDay >= 90 && diffDay < 120) {
+        dayDiff = "3 months ago";
+      } else if (diffDay >= 120 && diffDay < 150) {
+        dayDiff = "4 months ago";
+      } else if (diffDay >= 150 && diffDay < 180) {
+        dayDiff = "5 months ago";
+      } else if (diffDay >= 180 && diffDay < 210) {
+        dayDiff = "6 months ago";
+      } else if (diffDay >= 210 && diffDay < 240) {
+        dayDiff = "7 months ago";
+      } else if (diffDay >= 240 && diffDay < 270) {
+        dayDiff = "8 months ago";
+      } else if (diffDay >= 270 && diffDay < 300) {
+        dayDiff = "9 months ago";
+      } else if (diffDay >= 300 && diffDay < 330) {
+        dayDiff = "10 months ago";
+      } else if (diffDay >= 330 && diffDay < 365) {
+        dayDiff = "11 months ago";
+      } else if (diffDay >= 365 && diffDay < 730) {
+        dayDiff = "1 year ago";
+      }  else {
+        dayDiff = "2 years ago";
+      }
     }
   }
 
